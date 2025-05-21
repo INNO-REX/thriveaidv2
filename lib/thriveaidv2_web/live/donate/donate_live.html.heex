@@ -1,0 +1,286 @@
+<div class="min-h-screen bg-gradient-to-b from-black via-green-900/20 to-black text-white py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+  <!-- Decorative Background Elements -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <!-- Animated circles -->
+    <div class="absolute top-1/4 -left-20 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-float"></div>
+    <div class="absolute bottom-1/3 -right-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-float-delayed"></div>
+    
+    <!-- Gradient lines -->
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500/20 to-transparent animate-pulse-slow"></div>
+    <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500/20 to-transparent animate-pulse-slow"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="relative max-w-4xl mx-auto text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">
+      Make a <span class="text-green-400 animate-glow">Difference</span>
+    </h1>
+    <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
+      Your generosity can transform lives. Choose your preferred donation method below.
+    </p>
+    <div class="w-32 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mx-auto mt-6 animate-width"></div>
+  </div>
+
+  <!-- Multi-step Donation Process -->
+  <div class="max-w-4xl mx-auto">
+    <!-- Progress Steps -->
+    <div class="flex items-center justify-center mb-8 relative">
+      <div class="absolute h-1 bg-gray-700 w-full max-w-sm"></div>
+      <div class="relative flex justify-between w-full max-w-sm">
+        <div class={"rounded-full h-8 w-8 flex items-center justify-center border-2 transition-colors duration-300 #{if @donation_step in ["amount", "details", "confirm"], do: "border-green-500 bg-green-500", else: "border-gray-700 bg-gray-800"}"}>
+          <span class="text-white text-sm">1</span>
+        </div>
+        <div class={"rounded-full h-8 w-8 flex items-center justify-center border-2 transition-colors duration-300 #{if @donation_step in ["details", "confirm"], do: "border-green-500 bg-green-500", else: "border-gray-700 bg-gray-800"}"}>
+          <span class="text-white text-sm">2</span>
+        </div>
+        <div class={"rounded-full h-8 w-8 flex items-center justify-center border-2 transition-colors duration-300 #{if @donation_step == "confirm", do: "border-green-500 bg-green-500", else: "border-gray-700 bg-gray-800"}"}>
+          <span class="text-white text-sm">3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Amount Selection -->
+    <div class={"transition-all duration-500 #{if @donation_step == "amount", do: "block", else: "hidden"}"}>
+      <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 md:p-8 mb-8">
+        <h2 class="text-2xl font-semibold mb-6">Select Amount</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <%= for amount <- [100, 250, 500, 1000] do %>
+            <button class={"w-full py-3 px-4 rounded-lg text-center transition-all duration-300 #{if @amount == amount, do: "bg-green-600 text-white", else: "bg-gray-800 hover:bg-gray-700 text-gray-300"}"} 
+                    phx-click="select-amount"
+                    phx-value-amount={amount}>
+              K<%= amount %>
+            </button>
+          <% end %>
+        </div>
+        <div class="relative">
+          <input type="number"
+                 placeholder="Enter custom amount"
+                 class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                 value={@custom_amount}
+                 phx-blur="set-custom-amount"
+                 phx-value-amount={@custom_amount}/>
+          <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">K</span>
+        </div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <%= for method <- @payment_methods do %>
+          <div class={"payment-method-card group cursor-pointer rounded-xl overflow-hidden backdrop-blur-sm transition-all duration-300 hover:scale-105 #{if @selected_method && @selected_method.id == method.id, do: "ring-2 ring-green-500 shadow-lg shadow-green-500/20"}"} 
+               phx-click="select-payment-method"
+               phx-value-method={method.id}>
+            <div class={"h-32 #{method.color} bg-opacity-10 flex items-center justify-center p-6 transition-colors duration-300 group-hover:bg-opacity-20"}>
+              <img src={method.logo} alt={method.name} class="h-16 w-auto object-contain"/>
+            </div>
+            <div class="p-4 bg-gray-900/50">
+              <h3 class="font-semibold text-lg mb-1">{method.name}</h3>
+              <p class="text-sm text-gray-400">{method.description}</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-8 flex justify-end">
+        <button class={"px-6 py-3 rounded-lg font-semibold transition-all duration-300 #{if @amount && @amount > 0 && @selected_method, do: "bg-green-600 hover:bg-green-700 text-white", else: "bg-gray-700 text-gray-400 cursor-not-allowed"}"} 
+                phx-click="next-step"
+                disabled={!@amount || @amount <= 0 || !@selected_method}>
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Donor Details -->
+    <div class={"transition-all duration-500 #{if @donation_step == "details", do: "block", else: "hidden"}"}>
+      <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 md:p-8">
+        <h2 class="text-2xl font-semibold mb-6">Your Details</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+            <input type="text"
+                   name="name"
+                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                   value={@donor.name}
+                   phx-blur="update-donor"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+            <input type="email"
+                   name="email"
+                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                   value={@donor.email}
+                   phx-blur="update-donor"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
+            <input type="tel"
+                   name="phone"
+                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                   value={@donor.phone}
+                   phx-blur="update-donor"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Message (Optional)</label>
+            <textarea name="message"
+                      rows="3"
+                      class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                      phx-blur="update-donor"><%= @donor.message %></textarea>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-between">
+          <button class="px-6 py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition-all duration-300"
+                  phx-click="prev-step">
+            Back
+          </button>
+          <button class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300"
+                  phx-click="next-step">
+            Review Donation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div class={"transition-all duration-500 #{if @donation_step == "confirm", do: "block", else: "hidden"}"}>
+      <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 md:p-8">
+        <h2 class="text-2xl font-semibold mb-6">Confirm Your Donation</h2>
+        
+        <div class="space-y-6">
+          <div class="bg-gray-800/50 rounded-lg p-4">
+            <h3 class="text-lg font-medium mb-2">Donation Amount</h3>
+            <p class="text-3xl font-bold text-green-400">K<%= @amount %></p>
+          </div>
+
+          <%= if @selected_method do %>
+            <div class="bg-gray-800/50 rounded-lg p-4">
+              <h3 class="text-lg font-medium mb-2">Payment Method</h3>
+              <div class="flex items-center">
+                <img src={@selected_method.logo} alt={@selected_method.name} class="h-8 w-auto mr-3"/>
+                <span class="font-medium"><%= @selected_method.name %></span>
+              </div>
+              <%= if Map.get(@selected_method, :number) do %>
+                <p class="mt-2 text-gray-400">Send to: <span class="font-medium text-white"><%= @selected_method.number %></span></p>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= if @donor do %>
+            <div class="bg-gray-800/50 rounded-lg p-4">
+              <h3 class="text-lg font-medium mb-2">Donor Information</h3>
+              <dl class="space-y-1">
+                <div class="flex">
+                  <dt class="text-gray-400 w-24">Name:</dt>
+                  <dd class="text-white"><%= @donor.name %></dd>
+                </div>
+                <div class="flex">
+                  <dt class="text-gray-400 w-24">Email:</dt>
+                  <dd class="text-white"><%= @donor.email %></dd>
+                </div>
+                <div class="flex">
+                  <dt class="text-gray-400 w-24">Phone:</dt>
+                  <dd class="text-white"><%= @donor.phone %></dd>
+                </div>
+                <%= if @donor.message && @donor.message != "" do %>
+                  <div class="flex">
+                    <dt class="text-gray-400 w-24">Message:</dt>
+                    <dd class="text-white"><%= @donor.message %></dd>
+                  </div>
+                <% end %>
+              </dl>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="mt-8 flex justify-between">
+          <button class="px-6 py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition-all duration-300"
+                  phx-click="prev-step">
+            Back
+          </button>
+          <%= if @selected_method do %>
+            <%= if @selected_method.card do %>
+              <button class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300">
+                Proceed to Payment
+              </button>
+            <% else %>
+              <button class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300">
+                Complete Donation
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes float {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  @keyframes float-delayed {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(20px) rotate(-5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  @keyframes pulse-slow {
+    0% { opacity: 0.1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.1; }
+  }
+
+  @keyframes glow {
+    0% { text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+    50% { text-shadow: 0 0 20px rgba(34, 197, 94, 0.7), 0 0 30px rgba(34, 197, 94, 0.5); }
+    100% { text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+  }
+
+  @keyframes width {
+    from { width: 0; opacity: 0; }
+    to { width: 8rem; opacity: 1; }
+  }
+
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 10s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 4s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  .animate-width {
+    animation: width 1s ease-out forwards;
+  }
+
+  .payment-method-card {
+    animation: slide-up-fade 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .payment-method-card:nth-child(1) { animation-delay: 0.1s; }
+  .payment-method-card:nth-child(2) { animation-delay: 0.2s; }
+  .payment-method-card:nth-child(3) { animation-delay: 0.3s; }
+  .payment-method-card:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes slide-up-fade {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style> 
