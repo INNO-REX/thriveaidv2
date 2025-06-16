@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :thriveaidv2, Thriveaidv2.Repo,
   username: "postgres",
-  password: "32211",
+  password: "123456",
   hostname: "localhost",
   database: "thriveaidv2_dev",
   stacktrace: true,

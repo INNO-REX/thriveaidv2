@@ -51,22 +51,69 @@
 
   <!-- Image Modal -->
   <%= if @selected_image do %>
-    <div class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center animate-fade-in backdrop-blur-md"
+    <div class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center animate-fade-in backdrop-blur-md overflow-y-auto"
          phx-click="close-modal">
-      <div class="max-w-5xl w-full mx-4 relative animate-scale-up"
-           onclick="event.stopPropagation();">
-        <button class="absolute -top-12 right-0 text-white hover:text-green-400 transition-colors"
-                phx-click="close-modal">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-        <img src={@selected_image.url}
-             alt={@selected_image.title}
-             class="w-full h-auto rounded-lg shadow-2xl"/>
-        <div class="mt-4">
-          <h3 class="text-2xl font-bold text-white mb-2">{@selected_image.title}</h3>
-          <p class="text-gray-300">{@selected_image.description}</p>
+      <!-- Close button -->
+      <button class="fixed top-4 right-4 md:top-8 md:right-8 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-all duration-300 transform hover:scale-110 z-50"
+              phx-click="close-modal"
+              phx-click-away="close-modal">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      
+      <!-- Content container -->
+      <div class="max-w-6xl w-full mx-4 my-8 relative animate-scale-up"
+           phx-click="close-modal">
+        <!-- Image container with enhanced styling -->
+        <div class="relative rounded-xl overflow-hidden shadow-2xl bg-gray-900/50 border border-white/10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Image Section -->
+            <div class="relative">
+              <img src={@selected_image.url}
+                   alt={@selected_image.title}
+                   class="w-full h-[300px] md:h-[500px] object-cover"/>
+            </div>
+
+            <!-- Details Section -->
+            <div class="p-6 lg:p-8 flex flex-col">
+              <div class="flex-grow">
+                <h3 class="text-3xl font-bold text-white mb-4">{@selected_image.title}</h3>
+                <p class="text-gray-200 text-lg leading-relaxed mb-6">{@selected_image.description}</p>
+                
+                <!-- Additional Details -->
+                <div class="space-y-4">
+                  <div class="flex items-center text-gray-300">
+                    <.icon name="hero-calendar" class="w-5 h-5 mr-2 text-green-400" />
+                    <span>Program Date: January 2024</span>
+                  </div>
+                  <div class="flex items-center text-gray-300">
+                    <.icon name="hero-users" class="w-5 h-5 mr-2 text-green-400" />
+                    <span>Participants: 50+ Youth</span>
+                  </div>
+                  <div class="flex items-center text-gray-300">
+                    <.icon name="hero-map-pin" class="w-5 h-5 mr-2 text-green-400" />
+                    <span>Location: Fountain of Hope, Lusaka</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Impact Metrics -->
+              <div class="mt-8 pt-6 border-t border-white/10">
+                <h4 class="text-xl font-semibold text-white mb-4">Program Impact</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-white/5 rounded-lg p-4">
+                    <div class="text-2xl font-bold text-green-400">85%</div>
+                    <div class="text-sm text-gray-300">Success Rate</div>
+                  </div>
+                  <div class="bg-white/5 rounded-lg p-4">
+                    <div class="text-2xl font-bold text-green-400">500+</div>
+                    <div class="text-sm text-gray-300">Youth Impacted</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -86,6 +133,12 @@
   .gallery-card:nth-child(4) { animation-delay: 0.4s; }
   .gallery-card:nth-child(5) { animation-delay: 0.5s; }
   .gallery-card:nth-child(6) { animation-delay: 0.6s; }
+  .gallery-card:nth-child(7) { animation-delay: 0.7s; }
+  .gallery-card:nth-child(8) { animation-delay: 0.8s; }
+  .gallery-card:nth-child(9) { animation-delay: 0.9s; }
+  .gallery-card:nth-child(10) { animation-delay: 1.0s; }
+  .gallery-card:nth-child(11) { animation-delay: 1.1s; }
+  .gallery-card:nth-child(12) { animation-delay: 1.2s; }
 
   @keyframes slide-up-fade {
     from {

@@ -9,7 +9,7 @@ defmodule Thriveaidv2Web.Components.Layouts.Footer.FooterComponent do
           <!-- Logo and Mission -->
           <div class="col-span-1 md:col-span-2">
             <div class="flex items-center mb-4">
-              <img src={~p"/images/logo.png"} alt="ThriveAid Logo" class="h-10 w-auto"/>
+              <img src={~p"/images/logo.jpg"} alt="ThriveAid Logo" class="h-10 w-auto"/>
               <span class="ml-3 text-xl font-bold text-green-400">ThriveAid</span>
             </div>
             <p class="text-gray-400 mb-6">
@@ -82,7 +82,7 @@ defmodule Thriveaidv2Web.Components.Layouts.Footer.FooterComponent do
         <div class="mt-12 pt-8 border-t border-gray-800">
           <div class="flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm">
-              © 2024 ThriveAid. All rights reserved.
+              © 2025 ThriveAid. All rights reserved.
             </p>
             <div class="flex space-x-6 mt-4 md:mt-0">
               <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>

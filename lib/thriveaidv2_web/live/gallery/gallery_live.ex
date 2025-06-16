@@ -5,39 +5,75 @@ defmodule Thriveaidv2Web.GalleryLive do
     images = [
       %{
         id: 1,
-        url: "/images/gallery/image1.jpg",
-        title: "Community Education",
-        description: "Empowering through knowledge and skills development"
+        url: "/images/24.JPG",
+        title: "Academic Support",
+        description: "Engaged students participating in our academic support program"
       },
       %{
         id: 2,
-        url: "/images/gallery/image2.jpg",
-        title: "Healthcare Initiatives",
-        description: "Providing essential medical services to communities"
+        url: "/images/20.jpg",
+        title: "Entrepreneurship Training",
+        description: "Youth learning practical skills in t-shirt printing"
       },
       %{
         id: 3,
-        url: "/images/gallery/image3.jpg",
-        title: "Sustainable Agriculture",
-        description: "Supporting local farmers and food security"
+        url: "/images/25.jpeg",
+        title: "Skills Development",
+        description: "Hands-on training session for practical skills"
       },
       %{
         id: 4,
-        url: "/images/gallery/image4.jpg",
-        title: "Clean Water Projects",
-        description: "Ensuring access to safe drinking water"
+        url: "/images/8.JPG",
+        title: "Group Counseling",
+        description: "Supportive group counseling session in progress"
       },
       %{
         id: 5,
-        url: "/images/gallery/image5.jpg",
-        title: "Youth Empowerment",
-        description: "Building future leaders through mentorship"
+        url: "/images/22.jpg",
+        title: "Health Education",
+        description: "Open discussion on adolescent health and wellness"
       },
       %{
         id: 6,
-        url: "/images/gallery/image6.jpg",
-        title: "Women's Programs",
-        description: "Supporting women entrepreneurs and leaders"
+        url: "/images/img1.jpg",
+        title: "Community Impact",
+        description: "Making a difference in the lives of young people"
+      },
+      %{
+        id: 7,
+        url: "/images/img2.jpg",
+        title: "Youth Empowerment",
+        description: "Building future leaders through mentorship and support"
+      },
+      %{
+        id: 8,
+        url: "/images/home4.jpg",
+        title: "Community Programs",
+        description: "Engaging youth in meaningful community activities"
+      },
+      %{
+        id: 9,
+        url: "/images/23.jpg",
+        title: "Community Engagement",
+        description: "Building strong relationships with the community"
+      },
+      %{
+        id: 10,
+        url: "/images/19.JPG",
+        title: "Program Activities",
+        description: "Active participation in community development programs"
+      },
+      %{
+        id: 11,
+        url: "/images/fountain.jpeg",
+        title: "Fountain of Hope",
+        description: "Our partnership with Fountain of Hope community"
+      },
+      %{
+        id: 12,
+        url: "/images/13.jpg",
+        title: "Youth Development",
+        description: "Nurturing young talents and leadership skills"
       }
     ]
 

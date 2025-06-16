@@ -20,6 +20,7 @@ defmodule Thriveaidv2Web.Router do
     live "/", HomePageLive
     live "/gallery", GalleryLive
     live "/donate", DonateLive
+    live "/about", AboutPageLive
   end
 
   # Other scopes may use custom stacks.
