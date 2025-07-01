@@ -30,6 +30,45 @@
   .delay-500 { animation-delay: 500ms; }
   .delay-600 { animation-delay: 600ms; }
   .delay-1000 { animation-delay: 1000ms; }
+
+  @keyframes fade-in-content {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  details[open] > .content-to-show {
+    animation: fade-in-content 0.5s ease-out forwards;
+  }
+
+  /* Custom style for the summary button */
+  .story-summary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(90deg, #059669 0%, #047857 100%);
+    color: #fff;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 24px 0 rgba(16, 185, 129, 0.15);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    outline: none;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .story-summary-btn:hover, .story-summary-btn:focus {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    transform: scale(1.04);
+    box-shadow: 0 6px 32px 0 rgba(16, 185, 129, 0.25);
+    color: #e0ffe6;
+  }
+  details[open] > .story-summary-btn {
+    background: linear-gradient(90deg, #047857 0%, #059669 100%);
+    color: #bbf7d0;
+  }
 </style>
 
 <!--
@@ -179,8 +218,10 @@
 
 <!--
   Section 5: Success Story & Image Collage Section
-  Combines a compelling story with a dynamic, overlapping image collage.
-  This creates a visually rich section that proves the organization's impact.
+  Redesigned to be interactive. A summary is shown by default,
+  and the full, detailed story is revealed on click. This improves
+  readability and user experience. It uses the native <details>
+  and <summary> elements for a clean, no-JS solution.
 -->
 <div class="relative bg-gray-800 py-16 md:py-24 overflow-hidden">
   <div class="absolute inset-0">
@@ -190,11 +231,29 @@
     <div class="text-white animate-fade-in">
       <h2 class="text-3xl font-bold">A Story of Hope: <span class="text-green-400">The Fountain of Hope Foundation</span></h2>
       <div class="mt-6 prose prose-lg prose-invert text-gray-300">
-        <p>Our journey with Fountain of Hope (FOH), an organization supporting vulnerable children, began in 2021. Our holistic approach—focusing on academic support, mentorship, and mental health—has empowered approximately 500 young individuals, tangibly improving pass rates in examination classes.</p>
-        <blockquote class="border-l-4 border-green-400 pl-4 italic">
-          "I benefited a lot from Thrive Aid... They have impacted me in a good way and I use the same knowledge and skills in my daily life."
-          <cite class="block not-italic mt-2 font-semibold text-green-300">— Mathias Sichangwe, former FOH resident & scholarship recipient</cite>
-        </blockquote>
+        <p>
+          Our journey with Fountain of Hope (FOH), an organization supporting vulnerable children, began in 2021. Our holistic approach—focusing on academic support, mentorship, and mental health—has empowered approximately 500 young individuals, tangibly improving pass rates in examination classes.
+        </p>
+        <details class="group">
+          <summary class="story-summary-btn">
+            Read the Full Story
+            <.icon name="hero-chevron-down" class="ml-1 w-5 h-5 transition-transform duration-300 group-open:rotate-180" />
+          </summary>
+          <div class="mt-4 content-to-show">
+            <p>At Fountain of Hope orphanage (FOH) in Lusaka, Zambia, education is not just a pathway to success; it is a beacon of hope for underprivileged young people. Through the dedicated efforts of our organization, we have witnessed remarkable transformations in the lives of these youth.</p>
+            <p>One inspiring example is the story of Mathias, a Grade 12 student who was under our academic support program. With our support and guidance, Mathias not only scored high grades but also secured a scholarship to study abroad. His success is a testament to the transformative power of education.</p>
+            <blockquote class="border-l-4 border-green-400 pl-4 italic">
+              "I benefited a lot from Thrive Aid... They have impacted me in a good way and I use the same knowledge and skills in my daily life."
+              <cite class="block not-italic mt-2 font-semibold text-green-300">— Mathias Sichangwe, former FOH resident & scholarship recipient</cite>
+            </blockquote>
+            <p>Beyond academic achievements, our programs have instilled entrepreneurial skills and a sense of empowerment in our beneficiaries. They have expressed gratitude for the positive changes in their lives, highlighting the value of our efforts.</p>
+            <blockquote class="border-l-4 border-green-400 pl-4 italic">
+              "Your trainings and unwavering support help the children to thrive and do well in school. We are grateful for your implementation of the entrepreneurship classes..."
+              <cite class="block not-italic mt-2 font-semibold text-green-300">— Mrs. Iness Kashala, Administrative Manager at FOH</cite>
+            </blockquote>
+            <p>To expand our reach, we recently launched an online platform on WhatsApp, which now serves about 100 pupils. This innovative approach allows us to impact more young lives beyond our geographical boundaries. Mathias's story is a reminder of our mission as an organization and our role in providing opportunities for underprivileged youth to reach their full potential.</p>
+          </div>
+        </details>
       </div>
     </div>
     <div class="relative h-[600px] animate-fade-in delay-300">
