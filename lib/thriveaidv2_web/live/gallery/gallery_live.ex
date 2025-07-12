@@ -1,6 +1,7 @@
-defmodule Thriveaidv2Web.GalleryLive do
+defmodule Thriveaidv2Web.Gallery.GalleryLive do
   use Thriveaidv2Web, :live_view
 
+  @impl true
   def mount(_params, _session, socket) do
     images = [
       %{
@@ -77,15 +78,17 @@ defmodule Thriveaidv2Web.GalleryLive do
       }
     ]
 
-    {:ok, assign(socket, images: images, selected_image: nil)}
+    {:ok, assign(socket, images: images, selected_image: nil, current_page: "gallery")}
   end
 
+  @impl true
   def handle_event("select-image", %{"id" => id}, socket) do
     id = String.to_integer(id)
     selected_image = Enum.find(socket.assigns.images, &(&1.id == id))
     {:noreply, assign(socket, selected_image: selected_image)}
   end
 
+  @impl true
   def handle_event("close-modal", _, socket) do
     {:noreply, assign(socket, selected_image: nil)}
   end

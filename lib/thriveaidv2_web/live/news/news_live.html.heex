@@ -1,0 +1,382 @@
+<div class="bg-white min-h-screen">
+  <!-- Header -->
+  <div class="bg-gradient-to-br from-gray-900 to-black py-16 relative overflow-hidden">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0">
+      <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl animate-bounce delay-500"></div>
+    </div>
+    <div class="max-w-4xl mx-auto text-center px-4 relative z-10">
+      <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 animate-fade-in">
+        News <span class="text-green-400 animate-pulse">Updates</span>
+      </h1>
+      <p class="text-gray-300 text-lg md:text-xl animate-fade-in delay-200">
+        Stay updated with our latest programs, initiatives, and community impact
+      </p>
+    </div>
+  </div>
+
+  <!-- News Articles -->
+  <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <%= for {article, index} <- Enum.with_index(@news_articles) do %>
+        <div class="news-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-4 animate-fade-in" 
+             style={"animation-delay: #{index * 200}ms"} 
+             phx-click="show-article" 
+             phx-value-id={article.id}>
+          <div class="relative h-48 overflow-hidden">
+            <img src={article.image} alt={article.title} class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"/>
+            <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold animate-bounce">
+              <%= article.date %>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div class="text-white text-center transform translate-y-4 hover:translate-y-0 transition-transform duration-300">
+                <svg class="w-12 h-12 mx-auto mb-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <span class="text-sm font-semibold">Click to Read Full Story</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300"><%= article.title %></h3>
+            <p class="text-gray-600 mb-4 line-clamp-3"><%= article.summary %></p>
+            <div class="flex items-center text-green-600 font-semibold group-hover:text-green-700 transition-all duration-300">
+              <span>Read Full Story</span>
+              <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </div>
+          <!-- Hover effect overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-teal-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Partners Section -->
+  <div class="bg-gradient-to-r from-gray-50 to-green-50 py-16 animate-fade-in delay-1000">
+    <%= Thriveaidv2Web.Components.Layouts.PartnersComponent.partners_section(%{}) %>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="bg-gradient-to-r from-green-600 to-teal-600 py-16 relative overflow-hidden">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0">
+      <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-green-600/20 to-teal-600/20"></div>
+      <div class="absolute top-1/4 right-1/4 w-32 h-32 bg-white/10 rounded-full animate-ping"></div>
+      <div class="absolute bottom-1/4 left-1/4 w-24 h-24 bg-white/10 rounded-full animate-ping delay-1000"></div>
+    </div>
+    <div class="max-w-4xl mx-auto text-center px-4 relative z-10">
+      <h2 class="text-3xl font-bold text-white mb-4 animate-fade-in">Stay Connected</h2>
+      <p class="text-green-100 text-lg mb-8 animate-fade-in delay-200">Follow us for the latest updates on our programs and community impact</p>
+      <div class="flex justify-center space-x-4 animate-fade-in delay-300">
+        <a href="https://www.facebook.com/profile.php?id=100077229891510" 
+           class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+          <i class="fab fa-facebook mr-2"></i>Facebook
+        </a>
+        <a href="https://www.linkedin.com/in/thrive-aid-40a4682b2/" 
+           class="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+          <i class="fab fa-linkedin mr-2"></i>LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Modal for Article Details -->
+<%= if @selected_article do %>
+  <div class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 animate-fade-in" phx-click="close-modal">
+    <div class="bg-white rounded-2xl w-[95%] h-[90%] max-w-7xl overflow-hidden shadow-2xl animate-scale-in" phx-click-away="close-modal">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 relative overflow-hidden">
+        <!-- Animated header background -->
+        <div class="absolute inset-0">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full animate-pulse"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full animate-pulse delay-500"></div>
+        </div>
+        <div class="flex justify-between items-center relative z-10">
+          <div class="animate-slide-in-left">
+            <h2 class="text-2xl font-bold"><%= @selected_article.title %></h2>
+            <p class="text-green-100 mt-1"><%= @selected_article.date %></p>
+          </div>
+          <button 
+            phx-click="close-modal"
+            class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all duration-300 transform hover:scale-110 hover:rotate-90">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="flex flex-col lg:flex-row h-[calc(90%-120px)]">
+        <!-- Left Side - Content -->
+        <div class="flex-1 p-6 overflow-y-auto order-1 lg:order-1 min-h-0 animate-slide-in-up">
+          <div class="prose prose-lg max-w-none">
+            <%= raw(@selected_article.full_content) %>
+          </div>
+        </div>
+
+        <!-- Right Side - Images -->
+        <div class="w-full lg:w-1/2 bg-gray-50 p-6 overflow-y-auto order-2 lg:order-2 min-h-0 animate-slide-in-right">
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Program Photos</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <%= for {image, index} <- Enum.with_index(@selected_article.images) do %>
+              <div class={"group relative overflow-hidden rounded-lg shadow-md animate-fade-in #{if index >= 4, do: 'hidden lg:block'}"} 
+                   style={"animation-delay: #{index * 100}ms"}>
+                <img src={image} alt="Program photo" class="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-500"/>
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                <!-- Image overlay on hover -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
+                  <span class="text-white text-xs font-medium">Program Photo <%= index + 1 %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<style>
+/* ===== ANIMATIONS ===== */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0, -30px, 0); }
+  70% { transform: translate3d(0, -15px, 0); }
+  90% { transform: translate3d(0, -4px, 0); }
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s ease-out forwards;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-1000 { animation-delay: 1000ms; }
+
+/* ===== NEWS CARD ANIMATIONS ===== */
+.news-card {
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+}
+
+.news-card:hover {
+  transform: translateY(-16px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.news-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(13, 148, 136, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 0.75rem;
+  pointer-events: none;
+}
+
+.news-card:hover::before {
+  opacity: 1;
+}
+
+/* ===== MODAL STYLES ===== */
+.prose {
+  color: #374151;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.prose h4 {
+  color: #059669;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.prose h6 {
+  color: #1f2937;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.prose ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .prose {
+    font-size: 0.95rem;
+  }
+  
+  .prose h4 {
+    font-size: 1.5rem;
+  }
+  
+  .prose h6 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .news-card:hover {
+    transform: translateY(-8px) scale(1.01);
+  }
+  
+  /* Mobile modal adjustments */
+  .modal-content {
+    flex-direction: column;
+    height: auto !important;
+  }
+  
+  .modal-content > div:last-child {
+    height: 200px;
+    order: 2;
+    flex-shrink: 0;
+  }
+  
+  .modal-content > div:first-child {
+    order: 1;
+    flex: 1;
+    min-height: 300px;
+  }
+  
+  .prose {
+    font-size: 0.9rem;
+  }
+  
+  .prose h4 {
+    font-size: 1.25rem;
+  }
+  
+  /* Adjust modal size for mobile */
+  .modal-container {
+    width: 95% !important;
+    height: 90% !important;
+  }
+  
+  /* Ensure text is visible */
+  .prose p, .prose h4, .prose h6, .prose ul, .prose li {
+    color: #374151 !important;
+    visibility: visible !important;
+  }
+  
+  /* Show only 4 images on mobile */
+  .hidden.lg\\:block {
+    display: none !important;
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== SMOOTH SCROLLING ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== LOADING STATES ===== */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ===== HOVER EFFECTS ===== */
+.group:hover .group-hover\:translate-x-2 {
+  transform: translateX(0.5rem);
+}
+
+.group:hover .group-hover\:text-green-600 {
+  color: #059669;
+}
+
+.group:hover .group-hover\:text-green-700 {
+  color: #047857;
+}
+</style> 

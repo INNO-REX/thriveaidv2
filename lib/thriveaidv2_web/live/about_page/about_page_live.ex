@@ -1,12 +1,12 @@
-defmodule Thriveaidv2Web.AboutPageLive do
+defmodule Thriveaidv2Web.About.AboutPageLive do
   use Thriveaidv2Web, :live_view
-  import Thriveaidv2Web.CoreComponents
-  alias Phoenix.LiveView.JS
 
+  @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, current_page: "about")}
   end
 
+  @impl true
   def handle_params(_params, _url, socket) do
     {:noreply, socket}
   end

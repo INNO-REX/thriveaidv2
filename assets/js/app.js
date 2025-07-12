@@ -23,6 +23,8 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+// Add any globally defined hooks here
 let Hooks = {};
 
 Hooks.Slideshow = {
@@ -68,10 +70,15 @@ Hooks.Slideshow = {
   }
 };
 
+// Add this part to merge page-specific hooks
+// It looks for a `ViewHooks` object on the window and merges it into the main Hooks object.
+let ViewHooks = window.ViewHooks || {};
+Object.assign(Hooks, ViewHooks);
+
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: Hooks
+  hooks: Hooks // This now includes your page-specific hooks
 })
 
 // Show progress bar on live navigation and form submits
@@ -86,5 +93,6 @@ liveSocket.connect()
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
+// The line below is important for this approach!
 window.liveSocket = liveSocket
 

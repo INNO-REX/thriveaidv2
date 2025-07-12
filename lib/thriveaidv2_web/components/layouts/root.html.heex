@@ -12,7 +12,7 @@
     </script>
   </head>
   <body class="bg-black antialiased">
-    <.top_nav />
+    <.top_nav current_page={assigns[:current_page] || "home"} />
     {@inner_content}
     <.footer />
   </body>

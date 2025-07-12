@@ -15,12 +15,13 @@ defmodule Thriveaidv2Web.Components.Layouts.TopNav do
 
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center space-x-8">
-            <a href="/" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition">Home</a>
-            <a href="/about" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition">About Us</a>
-            <a href="/gallery" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition">Gallery</a>
-            <a href="/projects" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition">Projects</a>
-            <a href="/contact" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition">Contact</a>
-            <a href="/donate" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-full text-sm font-medium transition">Donate Now</a>
+            <a href="/" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "home", do: "text-green-600 font-semibold"}"}>Home</a>
+            <a href="/about" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "about", do: "text-green-600 font-semibold"}"}>About Us</a>
+            <a href="/what-we-do" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "what-we-do", do: "text-green-600 font-semibold"}"}>What We Do</a>
+            <a href="/success-stories" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "success-stories", do: "text-green-600 font-semibold"}"}>Success Stories</a>
+            <a href="/news" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "news", do: "text-green-600 font-semibold"}"}>News Updates</a>
+            <a href="/contact" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "contact", do: "text-green-600 font-semibold"}"}>Contact Us</a>
+            <a href="/donate" class={"bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-full text-sm font-medium transition #{if @current_page == "donate", do: "bg-green-700 shadow-lg"}"}>Donate Now</a>
           </div>
 
           <!-- Mobile Navigation Button -->
@@ -40,12 +41,13 @@ defmodule Thriveaidv2Web.Components.Layouts.TopNav do
         <!-- Mobile Navigation Menu -->
         <div class="hidden md:hidden" id="mobile-menu">
           <div class="px-2 pt-2 pb-3 space-y-1">
-            <a href="/" class="block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition">Home</a>
-            <a href="/about" class="block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition">About Us</a>
-            <a href="/gallery" class="block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition">Gallery</a>
-            <a href="/projects" class="block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition">Projects</a>
-            <a href="/contact" class="block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition">Contact</a>
-            <a href="/donate" class="block bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-full text-base font-medium transition text-center mt-4">Donate Now</a>
+            <a href="/" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "home", do: "text-green-600 font-semibold"}"}>Home</a>
+            <a href="/about" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "about", do: "text-green-600 font-semibold"}"}>About Us</a>
+            <a href="/what-we-do" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "what-we-do", do: "text-green-600 font-semibold"}"}>What We Do</a>
+            <a href="/success-stories" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "success-stories", do: "text-green-600 font-semibold"}"}>Success Stories</a>
+            <a href="/news" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "news", do: "text-green-600 font-semibold"}"}>News Updates</a>
+            <a href="/contact" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "contact", do: "text-green-600 font-semibold"}"}>Contact Us</a>
+            <a href="/donate" class={"block bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-full text-base font-medium transition text-center mt-2 #{if @current_page == "donate", do: "bg-green-700 shadow-lg"}"}>Donate Now</a>
           </div>
         </div>
       </div>

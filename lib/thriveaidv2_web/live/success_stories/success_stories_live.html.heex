@@ -1,0 +1,223 @@
+<div class="bg-white min-h-screen">
+  <!-- Header -->
+  <div class="bg-gradient-to-br from-gray-900 to-black py-16">
+    <div class="max-w-4xl mx-auto text-center px-4">
+      <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4">
+        Success <span class="text-green-400">Stories</span>
+      </h1>
+      <p class="text-gray-300 text-lg md:text-xl">
+        Making a difference one story at a time
+      </p>
+    </div>
+  </div>
+
+  <!-- Success Stories Grid -->
+  <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Joseph Mulenga Story -->
+      <div class="story-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer" phx-click="open-story" phx-value-story="joseph">
+        <div class="relative h-80">
+          <img src="/images/Joseph.jpg" alt="Joseph Mulenga" class="w-full h-full object-cover"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <h3 class="text-xl font-bold">Joseph Mulenga</h3>
+            <p class="text-green-300">Entrepreneurship Success Story</p>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="flex items-center mb-4">
+            <div class="bg-green-100 text-green-600 p-2 rounded-full mr-3">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-900">Embarks on His Entrepreneurial Journey</h4>
+          </div>
+          
+          <p class="text-gray-600 mb-4">
+            Joseph Mulenga, a resident of Fountain of Hope orphanage, was enrolled in the first cohort of the Ignite Entrepreneurship program by Thrive Aid.
+          </p>
+          
+          <div class="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors">
+            <span>Read Full Story</span>
+            <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precious J Banda Story -->
+      <div class="story-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer" phx-click="open-story" phx-value-story="precious">
+        <div class="relative h-80">
+          <img src="/images/precious.jpeg" alt="Precious J Banda" class="w-full h-full object-cover"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <h3 class="text-xl font-bold">Precious J Banda</h3>
+            <p class="text-green-300">Educational Transformation</p>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="flex items-center mb-4">
+            <div class="bg-blue-100 text-blue-600 p-2 rounded-full mr-3">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-900">Moving From Greatness to Greatness</h4>
+          </div>
+          
+          <p class="text-gray-600 mb-4">
+            Precious J Banda&apos;s journey is a testament to resilience and the transformative power of education.
+          </p>
+          
+          <div class="flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+            <span>Read Full Story</span>
+            <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- Story Modal -->
+  <div class={"fixed inset-0 z-50 flex items-center justify-center p-4 #{if @selected_story, do: 'block', else: 'hidden'}"} phx-click="close-story">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60"></div>
+    
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" phx-click-away="close-story">
+      
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-2xl font-bold mb-1">
+              <%= case @selected_story do %>
+                <% "joseph" -> %>
+                  Joseph Mulenga&apos;s Story
+                <% "precious" -> %>
+                  Precious J Banda&apos;s Story
+                <% _ -> %>
+                  Success Story
+              <% end %>
+            </h2>
+            <p class="text-green-100">
+              <%= case @selected_story do %>
+                <% "joseph" -> %>
+                  Entrepreneurship Success Story
+                <% "precious" -> %>
+                  Educational Transformation
+                <% _ -> %>
+                  Inspiring Journey
+              <% end %>
+            </p>
+          </div>
+          <button phx-click="close-story" class="text-white hover:text-gray-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="p-6">
+        <%= case @selected_story do %>
+          <% "joseph" -> %>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Joseph Mulenga Embarks on His Entrepreneurial Journey</h3>
+                <div class="space-y-4 text-gray-700">
+                  <p>Joseph Mulenga, a resident of Fountain of Hope orphanage, was enrolled in the first cohort of the Ignite Entrepreneurship program by Thrive Aid. The 3 months program, which commenced in the last week of December, aimed to equip young people with entrepreneurship skills and inspire them to become entrepreneurs.</p>
+                  
+                  <p>Joseph embraced the lessons and through the lessons he underwent, he not only gained skills in entrepreneurship but was motivated and decided to become an entrepreneur himself.</p>
+                  
+                  <p>Joseph began saving small amounts of money from some piece of works he did and from what he got from well-wishers until he had saved up K61. On March 23<sup>rd</sup>, with K61 in hand, he decided it was enough to start his business. He obtained permission to leave the orphanage and purchased a box of biscuits in Kamwala to sell. He targeted his school friends and kids who come for school and other activities at the orphanage as his initial customers.</p>
+                  
+                  <p>He explained that he sells each pack at K2 from each box he would be able to make a profit of K6. With his business off the ground, Joseph has plans of growing and expanding his business and even diversifying to other businesses once he saves up enough money from his biscuit business. His immediate goals include buying school supplies, such as a bag, and using the money for food during school breaks. He also hopes to use the profits for transportation to his school, which is far from the orphanage.</p>
+                  
+                  <p>Joseph is also one of the 6 participants from the first entrepreneurship cohort at Fountain of Hope who have started a school tuckshop business at the orphanages school where they are selling different snack during school break times. Joseph&apos;s entrepreneurial spirit and determination are a testament to the impact of the Ignite Entrepreneurship program in empowering young people to create their own opportunities for success.</p>
+                  
+                  <blockquote class="border-l-4 border-green-500 pl-4 italic text-gray-700 my-4">
+                    &ldquo;Nifuna kugula bag yaku skulu kaili bag yanga inaonongeka, naku dyelamo ku skulu pa break, naya transport ku skulu&rdquo;
+                  </blockquote>
+                  
+                  <p class="text-sm italic text-green-600">Mwenya the trainer poses for a photo with Joseph</p>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <img src="/images/Joseph.jpg" alt="Joseph Mulenga" class="w-full h-96 object-cover rounded-lg shadow-lg">
+                <img src="/images/joseph-t.jpeg" alt="Joseph with his leader" class="w-full h-auto object-cover rounded-lg shadow-lg">
+              </div>
+            </div>
+
+          <% "precious" -> %>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Moving From Greatness to Greatness - Precious J Banda</h3>
+                <div class="space-y-4 text-gray-700">
+                  <p>Precious J Banda&apos;s journey is a testament to resilience and the transformative power of education. Enrolled in the Thrive Aid academic support program in 2021 and a resident of Fountain of Hope since 2018, she faced significant challenges when she entered grade 10.</p>
+                  
+                  <p>Precious enrolled late into grade 10 due to circumstances beyond her control which left her with a lot to catch up on in different subjects. She also lacked study materials to supplement her class notes, and had no phone to access online notes, an initiative that was employed by most teachers to catch up on the lost teaching time due to the COVID-19 pandemic which led to prolonged school closures. Despite these obstacles, Precious never relented.</p>
+                  
+                  <p>One of the key turning points for Precious was the support she received from Thrive Aid through its academic support program. &ldquo;I was behind on most of the classwork because I reported late at school, then I started tuitions with Thrive Aid and after some time caught up and was one of the top students in class&rdquo; She mentioned that dedicated tutors among them Emmanuel and Michael really supported her. Michael specifically assisted Precious in mathematics and his commitment to her education was a game changer. &ldquo;Michael had so much confidence in me, even when I doubted my abilities, he kept encouraging me and would even go an extra mile by getting us past papers and other study materials to practice more&rdquo;</p>
+                  
+                  <p>The support Precious received was not limited to academic assistance. Thrive Aid also provided her with study materials and resources that were crucial for her studies. &ldquo;My first phone I received it as a gift from Emmanuel who was tutoring us and other resources I would receive from Thrive Aid made it possible for me to learn,&rdquo; she said.</p>
+                  
+                  <p>Her hard work and the support she received bore fruit as Precious successfully completed her secondary education. Her success did not stop there; she is now pursuing a degree in Clinical Medicine. Her journey from being an orphan at Fountain of Hope to a medical student is a powerful reminder of the impact that dedicated support and education can have on a young person&apos;s life. Precious&apos;s story inspires many and shows the importance of providing opportunities for education and support to those in need.</p>
+                  
+                  <p>Precious is now determined to give back to her community by helping others achieve their dreams just as she was helped. She is an example of how resilience, hard work, and the right support can lead to greatness.</p>
+                  
+                  <p class="text-sm italic text-blue-600">Precious during one of the educational support programs</p>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <img src="/images/precious.jpeg" alt="Precious J Banda" class="w-full h-96 object-cover rounded-lg shadow-lg">
+                <img src="/images/precious-t.jpeg" alt="Precious with her leader" class="w-full h-auto object-cover rounded-lg shadow-lg">
+              </div>
+            </div>
+
+
+
+          <% _ -> %>
+            <div class="text-center py-12">
+              <div class="bg-white rounded-xl p-8 shadow-lg">
+                <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Story not found.</p>
+              </div>
+            </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Partners Section -->
+  <%= Thriveaidv2Web.Components.Layouts.PartnersComponent.partners_section(%{}) %>
+
+  <style>
+    .story-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .prose {
+      line-height: 1.7;
+    }
+    
+    .prose p {
+      margin-bottom: 1rem;
+    }
+    
+    .prose blockquote {
+      font-style: italic;
+      border-left: 4px solid #10b981;
+      padding-left: 1rem;
+      margin: 1.5rem 0;
+    }
+  </style>
+</div> 

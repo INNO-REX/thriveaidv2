@@ -189,7 +189,7 @@
       <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">Meet the exceptional leaders guiding Thrive Aid's strategic direction and ensuring our commitment to our mission.</p>
     </div>
     <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <%= for {member, index} <- Enum.with_index([
+      <%= for {member, _index} <- Enum.with_index([
           %{name: "Dr. Chapwa Kasoma, Ph.D", title: "Board Chairperson", img: "/images/Dr.Chapwa_Kasoma.jpeg", desc: "A distinguished agricultural scientist, STEM advocate, and a Post-Doctoral Researcher at CABI. Her outstanding contributions have earned her numerous accolades, including the Mandela Washington Fellowship in 2016."},
           %{name: "Mr. Joseph Mumba", title: "Vice Chairperson", img: "/images/Mr.Joseph.jpeg", desc: "A development practitioner with over 12 years' experience. A qualified communication expert, he has worked with several international agencies including Care International, CRS, and RTI, and holds multiple degrees including a Master's in Communication for Development."},
           %{name: "Ms. Sophie Simachela", title: "Board Secretary", img: "/images/Sophie.jpeg", desc: "An Associate at Mesdames Charlotte Chuuma Advocates with expertise in civil litigation, corporate law, and conveyancing. Member of the Law Association of Zambia and an Advocate of the High Court of Zambia."},
@@ -321,3 +321,5 @@
       </a>
     </div>
 </div>
+
+<%= Thriveaidv2Web.Components.Layouts.PartnersComponent.partners_section(%{}) %>

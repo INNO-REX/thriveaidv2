@@ -17,12 +17,15 @@ defmodule Thriveaidv2Web.Router do
   scope "/", Thriveaidv2Web do
     pipe_through :browser
 
-    live "/", HomePageLive
-    live "/gallery", GalleryLive
-    live "/donate", DonateLive
-    live "/about", AboutPageLive
-    live "/projects", ProjectsLive
-    live "/contact", ContactLive
+    live "/", Home.HomePageLive
+    live "/gallery", Gallery.GalleryLive
+    live "/donate", Donate.DonateLive
+    live "/about", About.AboutPageLive
+    live "/projects", Projects.ProjectsLive
+    live "/contact", Contact.ContactLive
+    live "/what-we-do", WhatWeDo.WhatWeDoLive
+    live "/success-stories", SuccessStories.SuccessStoriesLive
+    live "/news", News.NewsLive
   end
 
   # Other scopes may use custom stacks.

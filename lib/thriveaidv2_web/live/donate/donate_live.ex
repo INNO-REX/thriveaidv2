@@ -1,6 +1,7 @@
-defmodule Thriveaidv2Web.DonateLive do
+defmodule Thriveaidv2Web.Donate.DonateLive do
   use Thriveaidv2Web, :live_view
 
+  @impl true
   def mount(_params, _session, socket) do
     payment_methods = [
       %{
@@ -39,6 +40,7 @@ defmodule Thriveaidv2Web.DonateLive do
 
     {:ok,
      assign(socket,
+       current_page: "donate",
        payment_methods: payment_methods,
        selected_method: nil,
        amount: nil,
@@ -53,11 +55,13 @@ defmodule Thriveaidv2Web.DonateLive do
      )}
   end
 
+  @impl true
   def handle_event("select-amount", %{"amount" => amount}, socket) do
     {amount, _} = Integer.parse(amount)
     {:noreply, assign(socket, amount: amount, custom_amount: nil)}
   end
 
+  @impl true
   def handle_event("set-custom-amount", %{"amount" => amount}, socket) do
     case Integer.parse(amount) do
       {parsed_amount, _} ->
@@ -67,11 +71,13 @@ defmodule Thriveaidv2Web.DonateLive do
     end
   end
 
+  @impl true
   def handle_event("select-payment-method", %{"method" => method_id}, socket) do
     method = Enum.find(socket.assigns.payment_methods, &(&1.id == method_id))
     {:noreply, assign(socket, selected_method: method)}
   end
 
+  @impl true
   def handle_event("next-step", _params, %{assigns: %{donation_step: "amount"}} = socket) do
     if socket.assigns.amount && socket.assigns.amount > 0 do
       {:noreply, assign(socket, donation_step: "details")}
@@ -80,18 +86,22 @@ defmodule Thriveaidv2Web.DonateLive do
     end
   end
 
+  @impl true
   def handle_event("next-step", _params, %{assigns: %{donation_step: "details"}} = socket) do
     {:noreply, assign(socket, donation_step: "confirm")}
   end
 
+  @impl true
   def handle_event("prev-step", _params, %{assigns: %{donation_step: "details"}} = socket) do
     {:noreply, assign(socket, donation_step: "amount")}
   end
 
+  @impl true
   def handle_event("prev-step", _params, %{assigns: %{donation_step: "confirm"}} = socket) do
     {:noreply, assign(socket, donation_step: "details")}
   end
 
+  @impl true
   def handle_event("update-donor", params, socket) do
     donor = Map.merge(socket.assigns.donor, atomize_keys(params))
     {:noreply, assign(socket, donor: donor)}
