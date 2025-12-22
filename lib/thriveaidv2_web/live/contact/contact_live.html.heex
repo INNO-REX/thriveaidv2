@@ -59,31 +59,66 @@
       <div class="lg:col-span-3 animate-fade-in delay-600">
         <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition-all duration-500">
           <h2 class="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
-          <form class="space-y-6">
+          <.form for={@form} as={:contact_message} phx-change="validate" phx-submit="send" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="group">
                 <label class="block text-sm font-medium text-gray-700 mb-2 group-hover:text-green-600 transition-colors duration-300">Full Name</label>
-                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300" placeholder="John Doe" required />
+                <input
+                  type="text"
+                  name={@form[:name].name}
+                  id={@form[:name].id}
+                  value={@form[:name].value || ""}
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300"
+                  placeholder="John Doe"
+                  required
+                />
+                <p :for={err <- @form[:name].errors} class="mt-2 text-sm text-rose-600"><%= translate_error(err) %></p>
               </div>
               <div class="group">
                 <label class="block text-sm font-medium text-gray-700 mb-2 group-hover:text-green-600 transition-colors duration-300">E-Mail Address</label>
-                <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300" placeholder="you@example.com" required />
+                <input
+                  type="email"
+                  name={@form[:email].name}
+                  id={@form[:email].id}
+                  value={@form[:email].value || ""}
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300"
+                  placeholder="you@example.com"
+                  required
+                />
+                <p :for={err <- @form[:email].errors} class="mt-2 text-sm text-rose-600"><%= translate_error(err) %></p>
               </div>
             </div>
             <div class="group">
               <label class="block text-sm font-medium text-gray-700 mb-2 group-hover:text-green-600 transition-colors duration-300">Subject</label>
-              <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300" placeholder="Question about services" required />
+              <input
+                type="text"
+                name={@form[:subject].name}
+                id={@form[:subject].id}
+                value={@form[:subject].value || ""}
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300"
+                placeholder="Question about services"
+                required
+              />
+              <p :for={err <- @form[:subject].errors} class="mt-2 text-sm text-rose-600"><%= translate_error(err) %></p>
             </div>
             <div class="group">
               <label class="block text-sm font-medium text-gray-700 mb-2 group-hover:text-green-600 transition-colors duration-300">Your Message</label>
-              <textarea rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300" placeholder="Your message here..." required></textarea>
+              <textarea
+                rows="6"
+                name={@form[:message].name}
+                id={@form[:message].id}
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:border-green-300"
+                placeholder="Your message here..."
+                required
+              ><%= @form[:message].value || "" %></textarea>
+              <p :for={err <- @form[:message].errors} class="mt-2 text-sm text-rose-600"><%= translate_error(err) %></p>
             </div>
             <div class="text-left">
               <button type="submit" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:scale-105 hover:shadow-lg">
                 Send Message
               </button>
             </div>
-          </form>
+          </.form>
         </div>
       </div>
 

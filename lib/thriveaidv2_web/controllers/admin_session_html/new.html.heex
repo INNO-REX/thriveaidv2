@@ -1,0 +1,51 @@
+<div class="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <div class="bg-white/95 backdrop-blur rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+      <div class="px-8 pt-10 pb-8">
+        <div class="text-center">
+          <h1 class="text-3xl font-extrabold text-gray-900">Admin Login</h1>
+          <p class="mt-2 text-gray-600">Sign in to manage News and Success Stories.</p>
+        </div>
+
+        <div class="mt-8">
+          <.form for={%{}} as={:admin} action={~p"/admin/login"} method="post" class="space-y-6">
+            <input type="hidden" name="admin[return_to]" value={@return_to} />
+
+            <.input
+              name="admin[email]"
+              label="Email"
+              type="email"
+              value={@email}
+              autocomplete="username"
+              required
+            />
+
+            <.input
+              name="admin[password]"
+              label="Password"
+              type="password"
+              value=""
+              autocomplete="current-password"
+              required
+            />
+
+            <button
+              type="submit"
+              class="admin-btn w-full rounded-xl bg-green-600 hover:bg-green-700 py-3 text-sm font-semibold text-white transition"
+            >
+              Log in
+            </button>
+          </.form>
+        </div>
+      </div>
+
+      <div class="px-8 py-5 bg-gray-50 border-t border-gray-100">
+        <p class="text-xs text-gray-500">
+          Having trouble? Ask the site owner to reset your admin password.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+

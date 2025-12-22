@@ -17,7 +17,7 @@ defmodule Thriveaidv2Web do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images uploads favicon.ico robots.txt)
 
   def router do
     quote do
@@ -54,6 +54,15 @@ defmodule Thriveaidv2Web do
     quote do
       use Phoenix.LiveView,
         layout: {Thriveaidv2Web.Layouts, :app}
+
+      unquote(html_helpers())
+    end
+  end
+
+  def admin_live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {Thriveaidv2Web.Layouts, :admin}
 
       unquote(html_helpers())
     end

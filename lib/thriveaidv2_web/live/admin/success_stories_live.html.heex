@@ -1,0 +1,241 @@
+<div class="max-w-7xl mx-auto">
+  <.header>
+    Success Stories
+    <:subtitle>Manage the stories shown on the public site.</:subtitle>
+    <:actions>
+      <.link patch={~p"/admin/success-stories/new"} class="rounded-lg bg-emerald-600 hover:bg-emerald-700 py-2 px-3 text-sm font-semibold text-white">
+        New Story
+      </.link>
+    </:actions>
+  </.header>
+
+  <div
+    id="success-stories"
+    phx-update="stream"
+    class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+  >
+    <div
+      :for={{dom_id, story} <- @streams.success_stories}
+      id={dom_id}
+      class="group rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden"
+    >
+      <div class="relative h-44 bg-gray-100">
+        <%= if story.cover_image_path do %>
+          <img src={story.cover_image_path} alt={story.title} class="h-full w-full object-cover" />
+        <% else %>
+          <div class="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100"></div>
+        <% end %>
+
+        <div class="absolute top-3 left-3 flex gap-2">
+          <span class={["px-2 py-1 rounded-full text-xs font-semibold",
+            story.is_published && "bg-emerald-600 text-white" || "bg-gray-900 text-white"]}>
+            <%= if story.is_published, do: "Published", else: "Draft" %>
+          </span>
+        </div>
+      </div>
+
+      <div class="p-5">
+        <div class="min-w-0">
+          <p class="text-lg font-bold text-gray-900 leading-snug line-clamp-2"><%= story.title %></p>
+          <p :if={story.subtitle} class="mt-1 text-sm text-gray-600 line-clamp-1"><%= story.subtitle %></p>
+          <p class="mt-1 text-xs text-gray-500">
+            <%= length(story.gallery_image_paths || []) %> gallery image(s)
+            <span class="mx-1">•</span>
+            <%= if story.published_at, do: Calendar.strftime(story.published_at, "%Y-%m-%d"), else: "Not published" %>
+          </p>
+        </div>
+
+        <p class="mt-3 text-sm text-gray-600 line-clamp-3"><%= story.summary %></p>
+
+        <div class="mt-5 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <.link
+              patch={~p"/admin/success-stories/#{story.id}/edit"}
+              class="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-800 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              Edit
+            </.link>
+            <button
+              type="button"
+              phx-click="toggle-publish"
+              phx-value-id={story.id}
+              class={[
+                "admin-btn inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold transition",
+                story.is_published && "bg-gray-900 text-white hover:bg-gray-800" || "bg-emerald-600 text-white hover:bg-emerald-700"
+              ]}
+            >
+              <%= if story.is_published, do: "Unpublish", else: "Publish" %>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            phx-click="ask-delete"
+            phx-value-id={story.id}
+            class="admin-btn text-sm font-semibold text-rose-700 hover:text-rose-800"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <.modal
+    :if={@confirm_delete}
+    id="confirm-delete-story"
+    show
+    on_cancel={JS.push("cancel-delete")}
+  >
+    <.header class="mb-4">
+      Delete success story?
+      <:subtitle>
+        This will permanently delete <b><%= @confirm_delete.title %></b>.
+      </:subtitle>
+    </.header>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        type="button"
+        phx-click="cancel-delete"
+        class="admin-btn rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-800 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        phx-click="confirm-delete"
+        class="admin-btn rounded-lg bg-rose-600 hover:bg-rose-700 px-4 py-2 text-sm font-semibold text-white"
+      >
+        Delete
+      </button>
+    </div>
+  </.modal>
+
+    <.modal
+      :if={@live_action in [:new, :edit]}
+      id="success-story-modal"
+      show
+      on_cancel={close_modal_js()}
+    >
+      <.header class="mb-6">
+        <%= @page_title %>
+        <:subtitle>Upload images from your computer (recommended: JPG/PNG/WebP).</:subtitle>
+      </.header>
+
+      <.simple_form for={@form} phx-change="validate" phx-submit="save">
+        <.input field={@form[:title]} label="Title" />
+        <.input field={@form[:subtitle]} label="Subtitle" />
+        <.input field={@form[:slug]} label="Slug (optional; auto-generated if blank)" />
+
+        <div>
+          <.label>Cover image</.label>
+          <div class="mt-2">
+            <.live_file_input upload={@uploads.cover_image} class="block w-full text-sm text-gray-700" />
+          </div>
+
+          <%= if cover = @success_story && @success_story.cover_image_path do %>
+            <div class="mt-3">
+              <p class="text-xs text-gray-500 mb-2">Current cover:</p>
+              <div class="relative inline-block">
+                <img src={cover} alt="Cover" class="h-24 w-40 object-cover rounded-lg border" />
+                <button
+                  type="button"
+                  phx-click="remove-image"
+                  phx-value-type="cover"
+                  phx-value-path={cover}
+                  class="admin-btn absolute -top-2 -right-2 bg-rose-600 hover:bg-rose-700 text-white rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold shadow-sm"
+                  aria-label="Remove cover image"
+                  title="Remove cover image"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="mt-3 flex flex-wrap gap-3">
+            <%= for entry <- @uploads.cover_image.entries do %>
+              <div class="relative">
+                <.live_img_preview entry={entry} class="h-24 w-40 object-cover rounded-lg border" />
+                <button
+                  type="button"
+                  phx-click="cancel-upload"
+                  phx-value-name="cover_image"
+                  phx-value-ref={entry.ref}
+                  class="admin-btn absolute -top-2 -right-2 bg-black/70 text-white rounded-full h-6 w-6 flex items-center justify-center"
+                  aria-label="Remove"
+                >
+                  ×
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div>
+          <.label>Gallery images</.label>
+          <p class="mt-1 text-xs text-gray-500">You can select multiple images.</p>
+          <div class="mt-2">
+            <.live_file_input upload={@uploads.gallery_images} class="block w-full text-sm text-gray-700" />
+          </div>
+
+          <%= if story = @success_story do %>
+            <%= if (story.gallery_image_paths || []) != [] do %>
+              <div class="mt-3">
+                <p class="text-xs text-gray-500 mb-2">Current gallery:</p>
+                <div class="flex flex-wrap gap-3">
+                  <%= for image <- story.gallery_image_paths do %>
+                    <div class="relative">
+                      <img src={image} alt="Gallery" class="h-20 w-28 object-cover rounded-lg border" />
+                      <button
+                        type="button"
+                        phx-click="remove-image"
+                        phx-value-type="gallery"
+                        phx-value-path={image}
+                        class="admin-btn absolute -top-2 -right-2 bg-rose-600 hover:bg-rose-700 text-white rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold shadow-sm"
+                        aria-label="Remove image"
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+
+          <div class="mt-3 flex flex-wrap gap-3">
+            <%= for entry <- @uploads.gallery_images.entries do %>
+              <div class="relative">
+                <.live_img_preview entry={entry} class="h-20 w-28 object-cover rounded-lg border" />
+                <button
+                  type="button"
+                  phx-click="cancel-upload"
+                  phx-value-name="gallery_images"
+                  phx-value-ref={entry.ref}
+                  class="admin-btn absolute -top-2 -right-2 bg-black/70 text-white rounded-full h-6 w-6 flex items-center justify-center"
+                  aria-label="Remove"
+                >
+                  ×
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <.input field={@form[:summary]} type="textarea" label="Summary" />
+        <.input field={@form[:body_html]} type="textarea" label="Body" placeholder="Write the story here. New lines will be formatted automatically." />
+        <.input field={@form[:is_published]} type="checkbox" label="Published" />
+        <:actions>
+          <.button class="admin-btn">Save</.button>
+          <.link patch={~p"/admin/success-stories"} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+            Cancel
+          </.link>
+        </:actions>
+      </.simple_form>
+    </.modal>
+</div>
+
+

@@ -3,3 +3,33 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Admin loaders:
+   - add class "admin-btn" to any admin action button
+   - LiveView will toggle "phx-click-loading" on buttons and "phx-submit-loading" on forms */
+.admin-btn.phx-click-loading,
+.phx-submit-loading .admin-btn[type="submit"] {
+  cursor: wait;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.admin-btn.phx-click-loading::after,
+.phx-submit-loading .admin-btn[type="submit"]::after {
+  content: "";
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-left: 0.5rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: admin-spin 0.75s linear infinite;
+  vertical-align: -0.125em;
+}

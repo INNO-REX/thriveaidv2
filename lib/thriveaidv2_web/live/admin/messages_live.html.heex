@@ -1,0 +1,188 @@
+<div class="max-w-7xl mx-auto">
+  <.header>
+    Messages
+    <:subtitle>Contact form submissions.</:subtitle>
+  </.header>
+
+  <div
+    id="messages"
+    phx-update="stream"
+    class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6"
+  >
+    <div
+      :for={{dom_id, msg} <- @streams.messages}
+      id={dom_id}
+      class={[
+        "rounded-2xl bg-white border shadow-sm hover:shadow-md transition overflow-hidden",
+        msg.is_read && "border-gray-200" || "border-emerald-300"
+      ]}
+    >
+      <button type="button" phx-click="open" phx-value-id={msg.id} class="w-full text-left">
+        <div class="p-5 flex gap-4">
+          <div class={[
+            "h-12 w-12 rounded-full flex items-center justify-center font-bold",
+            msg.is_read && "bg-gray-100 text-gray-700" || "bg-emerald-100 text-emerald-700"
+          ]}>
+            <%= initials(msg) %>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <p class="font-semibold text-gray-900 truncate"><%= msg.name %></p>
+              <span class={["text-xs font-semibold px-2 py-1 rounded-full",
+                msg.reply_body && "bg-indigo-600 text-white" || (msg.is_read && "bg-gray-100 text-gray-700" || "bg-emerald-600 text-white")]}>
+                <%= cond do %>
+                  <% msg.reply_body && String.trim(msg.reply_body) != "" -> %>
+                    Replied
+                  <% msg.is_read -> %>
+                    Read
+                  <% true -> %>
+                    New
+                <% end %>
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 truncate"><%= msg.email %></p>
+            <p class="mt-2 text-sm font-semibold text-gray-900 line-clamp-1"><%= msg.subject %></p>
+            <p class="mt-1 text-sm text-gray-600 line-clamp-2"><%= msg.message %></p>
+            <p class="mt-3 text-xs text-gray-500">
+              <%= Calendar.strftime(msg.inserted_at, "%Y-%m-%d %H:%M") %>
+            </p>
+          </div>
+        </div>
+      </button>
+
+      <div class="px-5 pb-5 flex items-center justify-between">
+        <button
+          type="button"
+          phx-click="toggle-read"
+          phx-value-id={msg.id}
+          class={[
+            "admin-btn inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold transition",
+            msg.is_read && "bg-gray-900 text-white hover:bg-gray-800" || "bg-emerald-600 text-white hover:bg-emerald-700"
+          ]}
+        >
+          <%= if msg.is_read, do: "Mark Unread", else: "Mark Read" %>
+        </button>
+
+        <button
+          type="button"
+          phx-click="ask-delete"
+          phx-value-id={msg.id}
+          class="admin-btn text-sm font-semibold text-rose-700 hover:text-rose-800"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <.modal
+    :if={@confirm_delete}
+    id="confirm-delete-message"
+    show
+    on_cancel={JS.push("cancel-delete")}
+  >
+    <.header class="mb-4">
+      Delete message?
+      <:subtitle>
+        This will permanently delete <b><%= @confirm_delete.title %></b>.
+      </:subtitle>
+    </.header>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        type="button"
+        phx-click="cancel-delete"
+        class="admin-btn rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-800 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        phx-click="confirm-delete"
+        class="admin-btn rounded-lg bg-rose-600 hover:bg-rose-700 px-4 py-2 text-sm font-semibold text-white"
+      >
+        Delete
+      </button>
+    </div>
+  </.modal>
+
+  <.modal :if={@selected_message} id="message-modal" show on_cancel={JS.push("close")}>
+    <.header class="mb-6">
+      <%= @selected_message.subject %>
+      <:subtitle>
+        From <b><%= @selected_message.name %></b> • <%= @selected_message.email %> •
+        <%= Calendar.strftime(@selected_message.inserted_at, "%Y-%m-%d %H:%M") %>
+      </:subtitle>
+      <:actions>
+        <button
+          type="button"
+          phx-click="toggle-read"
+          phx-value-id={@selected_message.id}
+          class="admin-btn rounded-lg bg-emerald-600 hover:bg-emerald-700 py-2 px-3 text-sm font-semibold text-white"
+        >
+          <%= if @selected_message.is_read, do: "Mark Unread", else: "Mark Read" %>
+        </button>
+        <a
+          href={"mailto:#{@selected_message.email}?subject=#{URI.encode_www_form("Re: " <> (@selected_message.subject || ""))}"}
+          class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-800 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+        >
+          Open Email App
+        </a>
+      </:actions>
+    </.header>
+
+    <div class="prose max-w-none text-gray-800">
+      <%= Thriveaidv2Web.TextHelpers.text_to_html(@selected_message.message) %>
+    </div>
+
+    <div class="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
+      <h3 class="text-lg font-bold text-gray-900">Reply</h3>
+      <p class="mt-1 text-sm text-gray-600">Send a reply email and save it on this message.</p>
+
+      <.form
+        :if={@reply_form}
+        for={@reply_form}
+        as={:contact_message}
+        phx-change="validate-reply"
+        phx-submit="send-reply"
+        class="mt-6 space-y-4"
+      >
+        <div>
+          <.label>Subject</.label>
+          <input
+            type="text"
+            name={@reply_form[:reply_subject].name}
+            id={@reply_form[:reply_subject].id}
+            value={@reply_form[:reply_subject].value || ""}
+            class="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          />
+          <p :for={err <- @reply_form[:reply_subject].errors} class="mt-2 text-sm text-rose-600"><%= translate_error(err) %></p>
+        </div>
+
+        <div>
+          <.label>Message</.label>
+          <textarea
+            rows="6"
+            name={@reply_form[:reply_body].name}
+            id={@reply_form[:reply_body].id}
+            class="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          ><%= @reply_form[:reply_body].value || "" %></textarea>
+          <p :for={err <- @reply_form[:reply_body].errors} class="mt-2 text-sm text-rose-600"><%= translate_error(err) %></p>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button
+            type="submit"
+            class="admin-btn rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
+          >
+            Send Reply
+          </button>
+        </div>
+      </.form>
+    </div>
+  </.modal>
+</div>
+
+

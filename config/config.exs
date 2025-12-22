@@ -31,6 +31,12 @@ config :thriveaidv2, Thriveaidv2Web.Endpoint,
 # at the `config/runtime.exs`.
 config :thriveaidv2, Thriveaidv2.Mailer, adapter: Swoosh.Adapters.Local
 
+# Default FROM address for admin replies to contact messages.
+# Override in production via environment/config if needed.
+config :thriveaidv2, :mailer_from,
+  email: "thriveaid1@gmail.com",
+  name: "ThriveAid"
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",

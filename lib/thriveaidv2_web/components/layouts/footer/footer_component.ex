@@ -2,7 +2,7 @@ defmodule Thriveaidv2Web.Components.Layouts.Footer.FooterComponent do
   use Thriveaidv2Web, :html
 
   def footer(assigns) do
-    current_year = Date.utc_today().year
+    assigns = assign(assigns, :current_year, Date.utc_today().year)
 
     ~H"""
     <footer class="bg-black text-white">
@@ -74,7 +74,7 @@ defmodule Thriveaidv2Web.Components.Layouts.Footer.FooterComponent do
         <div class="mt-12 pt-8 border-t border-gray-800">
           <div class="flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm">
-              © <%= current_year %> ThriveAid. All rights reserved.
+              © <%= @current_year %> ThriveAid. All rights reserved.
             </p>
             <div class="flex space-x-6 mt-4 md:mt-0">
               <a href={~p"/contact"} class="text-gray-400 hover:text-white text-sm">Contact Us</a>

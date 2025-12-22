@@ -20,15 +20,15 @@
   <!-- News Articles -->
   <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <%= for {article, index} <- Enum.with_index(@news_articles) do %>
+      <%= for {post, index} <- Enum.with_index(@news_posts) do %>
         <div class="news-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-4 animate-fade-in" 
              style={"animation-delay: #{index * 200}ms"} 
              phx-click="show-article" 
-             phx-value-id={article.id}>
+             phx-value-id={post.id}>
           <div class="relative h-48 overflow-hidden">
-            <img src={article.image} alt={article.title} class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"/>
+            <img src={post.cover_image_path} alt={post.title} class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"/>
             <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold animate-bounce">
-              <%= article.date %>
+              <%= Thriveaidv2Web.News.NewsLive.date_label_for(post) %>
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <div class="text-white text-center transform translate-y-4 hover:translate-y-0 transition-transform duration-300">
@@ -41,8 +41,8 @@
             </div>
           </div>
           <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300"><%= article.title %></h3>
-            <p class="text-gray-600 mb-4 line-clamp-3"><%= article.summary %></p>
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300"><%= post.title %></h3>
+            <p class="text-gray-600 mb-4 line-clamp-3"><%= post.summary %></p>
             <div class="flex items-center text-green-600 font-semibold group-hover:text-green-700 transition-all duration-300">
               <span>Read Full Story</span>
               <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@
 </div>
 
 <!-- Enhanced Modal for Article Details -->
-<%= if @selected_article do %>
+<%= if @selected_post do %>
   <div class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 animate-fade-in" phx-click="close-modal">
     <div class="bg-white rounded-2xl w-[95%] h-[90%] max-w-7xl overflow-hidden shadow-2xl animate-scale-in" phx-click-away="close-modal">
       <!-- Modal Header -->
@@ -100,8 +100,8 @@
         </div>
         <div class="flex justify-between items-center relative z-10">
           <div class="animate-slide-in-left">
-            <h2 class="text-2xl font-bold"><%= @selected_article.title %></h2>
-            <p class="text-green-100 mt-1"><%= @selected_article.date %></p>
+            <h2 class="text-2xl font-bold"><%= @selected_post.title %></h2>
+            <p class="text-green-100 mt-1"><%= Thriveaidv2Web.News.NewsLive.date_label_for(@selected_post) %></p>
           </div>
           <button 
             phx-click="close-modal"
@@ -118,7 +118,7 @@
         <!-- Left Side - Content -->
         <div class="flex-1 p-6 overflow-y-auto order-1 lg:order-1 min-h-0 animate-slide-in-up">
           <div class="prose prose-lg max-w-none">
-            <%= raw(@selected_article.full_content) %>
+            <%= Thriveaidv2Web.TextHelpers.text_to_html(@selected_post.body_html || "") %>
           </div>
         </div>
 
@@ -126,9 +126,14 @@
         <div class="w-full lg:w-1/2 bg-gray-50 p-6 overflow-y-auto order-2 lg:order-2 min-h-0 animate-slide-in-right">
           <h3 class="text-xl font-bold text-gray-900 mb-4">Program Photos</h3>
           <div class="grid grid-cols-2 gap-4">
-            <%= for {image, index} <- Enum.with_index(@selected_article.images) do %>
-              <div class={"group relative overflow-hidden rounded-lg shadow-md animate-fade-in #{if index >= 4, do: 'hidden lg:block'}"} 
-                   style={"animation-delay: #{index * 100}ms"}>
+            <%= for {image, index} <- Enum.with_index(@selected_post.image_paths) do %>
+              <div
+                class={[
+                  "group relative overflow-hidden rounded-lg shadow-md animate-fade-in",
+                  index >= 4 && "hidden lg:block"
+                ]}
+                style={"animation-delay: #{index * 100}ms"}
+              >
                 <img src={image} alt="Program photo" class="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-500"/>
                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 <!-- Image overlay on hover -->
