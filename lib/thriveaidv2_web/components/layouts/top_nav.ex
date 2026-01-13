@@ -7,7 +7,7 @@ defmodule Thriveaidv2Web.Components.Layouts.TopNav do
     ~H"""
     <nav class="bg-white shadow-md fixed w-full z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between items-center h-16">
           <!-- Logo and Brand Name -->
           <div class="flex items-center">
             <a href="/" class="flex items-center">
@@ -16,13 +16,14 @@ defmodule Thriveaidv2Web.Components.Layouts.TopNav do
           </div>
 
           <!-- Desktop Navigation -->
-          <div class="hidden md:flex items-center space-x-8">
-            <a href="/" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "home", do: "text-green-600 font-semibold"}"}>Home</a>
-            <a href="/about" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "about", do: "text-green-600 font-semibold"}"}>About Us</a>
-            <a href="/what-we-do" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "what-we-do", do: "text-green-600 font-semibold"}"}>What We Do</a>
-            <a href="/success-stories" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "success-stories", do: "text-green-600 font-semibold"}"}>Success Stories</a>
-            <a href="/news" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "news", do: "text-green-600 font-semibold"}"}>News Updates</a>
-            <a href="/contact" class={"text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition #{if @current_page == "contact", do: "text-green-600 font-semibold"}"}>Contact Us</a>
+          <div class="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <a href="/" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "home", do: "text-green-600 font-semibold"}"}>Home</a>
+            <a href="/about" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "about", do: "text-green-600 font-semibold"}"}>About Us</a>
+            <a href="/what-we-do" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "what-we-do", do: "text-green-600 font-semibold"}"}>What We Do</a>
+            <a href="/success-stories" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "success-stories", do: "text-green-600 font-semibold"}"}>Success Stories</a>
+            <a href="/news" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "news", do: "text-green-600 font-semibold"}"}>News Updates</a>
+            <a href="/annual-report" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "annual-report", do: "text-green-600 font-semibold"}"}>Reports</a>
+            <a href="/contact" class={"text-gray-700 hover:text-green-600 px-2 py-2 text-sm font-medium transition whitespace-nowrap #{if @current_page == "contact", do: "text-green-600 font-semibold"}"}>Contact Us</a>
             <.link
               :if={@current_admin_user}
               href={~p"/admin"}
@@ -37,7 +38,7 @@ defmodule Thriveaidv2Web.Components.Layouts.TopNav do
             >
               Logout
             </.link>
-            <a href="/donate" class={"bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-full text-sm font-medium transition #{if @current_page == "donate", do: "bg-green-700 shadow-lg"}"}>Donate Now</a>
+            <a href="/donate" class={"bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap #{if @current_page == "donate", do: "bg-green-700 shadow-lg"}"}>Donate Now</a>
              <.link
               :if={!@current_admin_user}
               href={~p"/admin/login"}
@@ -69,6 +70,7 @@ defmodule Thriveaidv2Web.Components.Layouts.TopNav do
             <a href="/what-we-do" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "what-we-do", do: "text-green-600 font-semibold"}"}>What We Do</a>
             <a href="/success-stories" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "success-stories", do: "text-green-600 font-semibold"}"}>Success Stories</a>
             <a href="/news" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "news", do: "text-green-600 font-semibold"}"}>News Updates</a>
+            <a href="/annual-report" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "annual-report", do: "text-green-600 font-semibold"}"}>Annual Report</a>
             <a href="/contact" class={"block text-gray-700 hover:text-green-600 px-3 py-2 text-base font-medium transition #{if @current_page == "contact", do: "text-green-600 font-semibold"}"}>Contact Us</a>
             <.link
               :if={@current_admin_user}

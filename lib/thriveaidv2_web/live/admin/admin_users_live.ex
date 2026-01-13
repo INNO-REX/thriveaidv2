@@ -36,6 +36,44 @@ defmodule Thriveaidv2Web.Admin.AdminUsersLive do
   end
 
   @impl true
+  def handle_event("select-all-permissions", _params, socket) do
+    all_permissions = ["manage_content", "manage_messages", "manage_partners", "manage_donations", "manage_admins"]
+    
+    # Get current changeset
+    current_changeset = socket.assigns.form.source
+    
+    # Build params with all permissions, preserving other fields from changeset
+    params = %{
+      "permissions" => all_permissions
+    }
+    
+    # Preserve other fields if they exist in the changeset
+    params =
+      current_changeset
+      |> Map.get(:params, %{})
+      |> Map.merge(params)
+      |> Map.merge(
+        %{
+          "name" => Ecto.Changeset.get_field(current_changeset, :name),
+          "email" => Ecto.Changeset.get_field(current_changeset, :email),
+          "password" => Ecto.Changeset.get_field(current_changeset, :password)
+        }
+        |> Enum.reject(fn {_k, v} -> is_nil(v) || v == "" end)
+        |> Map.new()
+      )
+    
+    changeset =
+      socket.assigns.admin_user
+      |> Accounts.change_admin_user(params)
+      |> Map.put(:action, :validate)
+
+    {:noreply,
+     socket
+     |> assign_form(changeset)
+     |> push_event("check-permission-boxes", %{permissions: all_permissions})}
+  end
+
+  @impl true
   def handle_event("save", %{"admin_user" => params}, socket) do
     params = maybe_strip_password_param(socket, params)
     save_admin_user(socket, socket.assigns.live_action, params)
@@ -122,12 +160,14 @@ defmodule Thriveaidv2Web.Admin.AdminUsersLive do
 
       true ->
         case Accounts.update_admin_user(user, params) do
-          {:ok, user} ->
-            {:noreply,
-             socket
-             |> put_flash(:info, "Admin updated.")
-             |> stream_insert(:admin_users, user)
-             |> push_patch(to: ~p"/admin/admin-users")}
+          {:ok, updated_user} ->
+            socket =
+              socket
+              |> put_flash(:info, "Admin updated.")
+              |> stream_insert(:admin_users, updated_user)
+              |> maybe_refresh_current_user_permissions(current, updated_user)
+
+            {:noreply, push_patch(socket, to: ~p"/admin/admin-users")}
 
           {:error, %Ecto.Changeset{} = changeset} ->
             {:noreply, assign_form(socket, changeset)}
@@ -179,6 +219,24 @@ defmodule Thriveaidv2Web.Admin.AdminUsersLive do
 
   defp close_modal_js do
     JS.patch(~p"/admin/admin-users")
+  end
+
+  # Refresh current user's permissions if they were just updated
+  defp maybe_refresh_current_user_permissions(socket, current_user, updated_user) do
+    if current_user && updated_user && current_user.id == updated_user.id do
+      # Reload the user from database to get fresh permissions
+      fresh_user = Accounts.get_admin_user!(updated_user.id)
+
+      socket
+      |> Phoenix.Component.assign(:current_admin_user, fresh_user)
+      |> Phoenix.Component.assign(:admin_permissions, fresh_user.permissions || [])
+      |> Phoenix.Component.assign(:can_manage_admins, Accounts.has_permission?(fresh_user, "manage_admins"))
+      |> Phoenix.Component.assign(:can_manage_content, Accounts.has_permission?(fresh_user, "manage_content"))
+      |> Phoenix.Component.assign(:can_manage_messages, Accounts.has_permission?(fresh_user, "manage_messages"))
+      |> Phoenix.Component.assign(:can_manage_partners, Accounts.has_permission?(fresh_user, "manage_partners"))
+    else
+      socket
+    end
   end
 end
 

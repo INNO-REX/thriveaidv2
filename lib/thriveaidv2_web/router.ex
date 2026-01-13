@@ -31,13 +31,14 @@ defmodule Thriveaidv2Web.Router do
     live_session :default, on_mount: [{Thriveaidv2Web.AdminAuth, :mount_current_admin}] do
       live "/", Home.HomePageLive
       live "/gallery", Gallery.GalleryLive
-      live "/donate", Donate.DonateLive
+      live "/donate", DonateLive
       live "/about", About.AboutPageLive
       live "/projects", Projects.ProjectsLive
       live "/contact", Contact.ContactLive
       live "/what-we-do", WhatWeDo.WhatWeDoLive
       live "/success-stories", SuccessStories.SuccessStoriesLive
       live "/news", News.NewsLive
+      live "/annual-report", AnnualReport.AnnualReportLive, :index
     end
   end
 
@@ -65,6 +66,29 @@ defmodule Thriveaidv2Web.Router do
       live "/news", Admin.NewsPostsLive, :index
       live "/news/new", Admin.NewsPostsLive, :new
       live "/news/:id/edit", Admin.NewsPostsLive, :edit
+
+      live "/annual-reports", Admin.AnnualReportsLive, :index
+      live "/annual-reports/new", Admin.AnnualReportsLive, :new
+      live "/annual-reports/:id/edit", Admin.AnnualReportsLive, :edit
+    end
+
+    live_session :admin_partners,
+      on_mount: [
+        {Thriveaidv2Web.AdminAuth, :require_admin},
+        {Thriveaidv2Web.AdminAuth, {:require_permission, "manage_partners"}}
+      ] do
+      live "/partners", Admin.PartnersLive, :index
+      live "/partners/new", Admin.PartnersLive, :new
+      live "/partners/:id/edit", Admin.PartnersLive, :edit
+    end
+
+    live_session :admin_mobile_money_payments,
+      on_mount: [
+        {Thriveaidv2Web.AdminAuth, :require_admin},
+        {Thriveaidv2Web.AdminAuth, {:require_permission, "manage_content"}}
+      ] do
+      live "/mobile-money-payments", Admin.MobileMoneyPaymentsLive, :index
+      live "/mobile-money-payments/:id/edit", Admin.MobileMoneyPaymentsLive, :edit
     end
 
     live_session :admin_messages,
@@ -73,6 +97,17 @@ defmodule Thriveaidv2Web.Router do
         {Thriveaidv2Web.AdminAuth, {:require_permission, "manage_messages"}}
       ] do
       live "/messages", Admin.MessagesLive, :index
+    end
+
+    live_session :admin_donations,
+      on_mount: [
+        {Thriveaidv2Web.AdminAuth, :require_admin},
+        {Thriveaidv2Web.AdminAuth, {:require_permission, "manage_donations"}}
+      ] do
+      live "/donations", Admin.DonationsLive, :index
+      live "/donations/:id", Admin.DonationsLive, :show
+      live "/donations/:id/edit", Admin.DonationsLive, :edit
+      live "/donations/:id/print", Admin.DonationsLive, :print
     end
 
     live_session :admin_users_mgmt,

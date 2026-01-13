@@ -193,7 +193,7 @@ defmodule Thriveaidv2Web.CoreComponents do
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
 
   attr :rest, :global,
-    include: ~w(autocomplete name rel action enctype method novalidate target multipart),
+    include: ~w(autocomplete name rel action enctype method novalidate target),
     doc: "the arbitrary HTML attributes to apply to the form tag"
 
   slot :inner_block, required: true
@@ -672,5 +672,103 @@ defmodule Thriveaidv2Web.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  Renders an actions dropdown menu for admin pages.
+
+  ## Examples
+
+      <.actions_dropdown id="partner-actions-1">
+        <:item navigate={~p"/admin/partners/1/edit"}>
+          Edit
+        </:item>
+        <:item phx-click="toggle-active" phx-value-id="1">
+          Activate
+        </:item>
+        <:item phx-click="ask-delete" phx-value-id="1" class="text-rose-600">
+          Delete
+        </:item>
+      </.actions_dropdown>
+  """
+  attr :id, :string, required: true, doc: "unique id for the dropdown"
+  attr :class, :string, default: "", doc: "additional CSS classes"
+  slot :item,
+    required: true,
+    doc: "action items to display in the dropdown" do
+    attr :navigate, :string
+    attr :patch, :string
+    attr :phx_click, :string, doc: "phx-click event handler"
+    attr :"phx-click", :string, doc: "phx-click event handler (alternative format)"
+    attr :"phx-value-id", :string
+    attr :"phx-value-ref", :string
+    attr :class, :string
+    attr :icon, :string, doc: "Heroicon name for the item"
+  end
+
+  def actions_dropdown(assigns) do
+    ~H"""
+    <div class={["relative inline-block text-left", @class]}>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50 hover:shadow-md hover:ring-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        phx-click={JS.toggle(to: "##{@id}-menu", in: {"transition ease-out duration-100", "transform opacity-0 scale-95", "transform opacity-100 scale-100"})}
+        phx-click-away={JS.hide(to: "##{@id}-menu", transition: "transition ease-in duration-75", time: 75)}
+        aria-expanded="false"
+        aria-haspopup="true"
+      >
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Options</span>
+        <.icon name="hero-ellipsis-vertical-mini" class="h-4 w-4 text-gray-400" />
+      </button>
+
+      <div
+        id={"#{@id}-menu"}
+        class="hidden absolute right-0 bottom-full mb-2 z-50 w-64 origin-bottom-right rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden"
+        phx-click-away={JS.hide(to: "##{@id}-menu", transition: "transition ease-in duration-75", time: 75)}
+      >
+        <div class="py-1.5" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
+          <%= for item <- @item do %>
+            <div role="none">
+              <%= if Map.get(item, :navigate) || Map.get(item, :patch) do %>
+                <.link
+                  navigate={Map.get(item, :navigate)}
+                  patch={Map.get(item, :patch)}
+                  class={[
+                    "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors",
+                    "hover:bg-gray-50 active:bg-gray-100",
+                    Map.get(item, :class, "text-gray-700")
+                  ]}
+                  role="menuitem"
+                >
+                  <%= if Map.get(item, :icon) do %>
+                    <.icon name={Map.get(item, :icon)} class="h-4 w-4 text-gray-400" />
+                  <% end %>
+                  <%= render_slot(item) %>
+                </.link>
+              <% else %>
+                <button
+                  type="button"
+                  phx-click={Map.get(item, :phx_click) || Map.get(item, :"phx-click")}
+                  phx-value-id={Map.get(item, :"phx-value-id")}
+                  phx-value-ref={Map.get(item, :"phx-value-ref")}
+                  class={[
+                    "flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors",
+                    "hover:bg-gray-50 active:bg-gray-100",
+                    Map.get(item, :class, "text-gray-700")
+                  ]}
+                  role="menuitem"
+                >
+                  <%= if Map.get(item, :icon) do %>
+                    <.icon name={Map.get(item, :icon)} class="h-4 w-4 text-gray-400" />
+                  <% end %>
+                  <%= render_slot(item) %>
+                </button>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    """
   end
 end

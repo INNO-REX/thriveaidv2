@@ -1,16 +1,19 @@
 defmodule Thriveaidv2Web.Contact.ContactLive do
   use Thriveaidv2Web, :live_view
 
+  alias Thriveaidv2.Content
   alias Thriveaidv2.Inbox
   alias Thriveaidv2.Inbox.ContactMessage
 
   @impl true
   def mount(_params, _session, socket) do
     changeset = Inbox.change_contact_message(%ContactMessage{})
+    partners = Content.list_active_partners()
 
     {:ok,
      socket
      |> assign(current_page: "contact")
+     |> assign(partners: partners)
      |> assign(form: to_form(changeset))}
   end
 

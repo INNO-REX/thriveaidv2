@@ -1,9 +1,12 @@
 defmodule Thriveaidv2Web.Home.HomePageLive do
   use Thriveaidv2Web, :live_view
 
+  alias Thriveaidv2.Content
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, current_page: "home")}
+    partners = Content.list_active_partners()
+    {:ok, assign(socket, current_page: "home", partners: partners)}
   end
 
   @impl true

@@ -1,0 +1,143 @@
+<div class="max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <.header>
+      Donations
+      <:subtitle>Manage payment details and instructions for all mobile money methods.</:subtitle>
+    </.header>
+    <%= if @can_manage_donations do %>
+      <.link
+        navigate={~p"/admin/donations"}
+        class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-2.9-.879-4.006 0-.553.44-1.278.659-2.003.659H3v6h1.5c.725 0 1.45-.22 2.003-.659 1.106-.879 2.9-.879 4.006 0L12 18.818l1.491-1.136c1.106-.879 2.9-.879 4.006 0 1.172.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182-.553-.44-1.278-.659-2.003-.659H21V9h-1.5c-.725 0-1.45.22-2.003.659-1.106.879-2.9.879-4.006 0L12 5.182l-1.491 1.136c-1.106.879-2.9.879-4.006 0-.553-.44-1.278-.659-2.003-.659H3v6h1.5c.725 0 1.45-.22 2.003-.659z" />
+        </svg>
+        View Donation Records
+      </.link>
+    <% end %>
+  </div>
+
+  <%= if @live_action == :index do %>
+    <%= if @mobile_money_payments == [] do %>
+      <div class="mt-8 text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+        <p class="text-gray-600 mb-4">No mobile money payment methods configured yet.</p>
+        <button
+          phx-click="create-defaults"
+          class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+        >
+          Create Default Methods (Airtel, MTN, Zamtel)
+        </button>
+      </div>
+    <% else %>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <%= for payment <- @mobile_money_payments do %>
+          <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <img 
+                  src={Map.get(payment, :logo, "/images/payments/default.png")} 
+                  alt={payment.method_name} 
+                  class="h-10 w-auto object-contain"
+                />
+                <h3 class="text-xl font-semibold text-gray-900 capitalize">
+                  <%= payment.method_name %> Money
+                </h3>
+              </div>
+              <.link
+                navigate={~p"/admin/mobile-money-payments/#{payment.id}/edit"}
+                class="text-emerald-600 hover:text-emerald-800 font-medium text-sm"
+              >
+                Edit
+              </.link>
+            </div>
+            
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="text-gray-500">Phone Number:</span>
+                <span class="text-gray-900 font-medium ml-2"><%= payment.phone_number %></span>
+              </div>
+              <div>
+                <span class="text-gray-500">Account Name:</span>
+                <span class="text-gray-900 font-medium ml-2"><%= payment.account_name %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= if @live_action == :edit do %>
+    <.simple_form for={@form} phx-change="validate" phx-submit="save">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+        <select disabled class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-gray-900">
+          <option value="airtel" selected={@editing_payment.method_name == "airtel"}>Airtel Money</option>
+          <option value="mtn" selected={@editing_payment.method_name == "mtn"}>MTN Mobile Money</option>
+          <option value="zamtel" selected={@editing_payment.method_name == "zamtel"}>Zamtel Kwacha</option>
+        </select>
+        <input type="hidden" name="mobile_money_payment[method_name]" value={@editing_payment.method_name} />
+      </div>
+      
+      <.input field={@form[:phone_number]} label="Phone Number" required />
+      <p class="text-sm text-gray-500 mt-1 mb-4">The mobile money phone number where donations should be sent.</p>
+      
+      <.input field={@form[:account_name]} label="Account Name" required />
+      <p class="text-sm text-gray-500 mt-1 mb-4">The name that will appear when users send money to this number.</p>
+      
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Payment Steps</label>
+        <p class="text-sm text-gray-500 mb-4">Enter each step of the payment process. Users will see these instructions when they select this payment method. Use PHONENUMBER, KAMOUNT, and ACCOUNTNAME as placeholders.</p>
+        
+        <div class="space-y-3">
+          <%= for {step, index} <- Enum.with_index(@payment_steps || []) do %>
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold mt-1">
+                <%= index + 1 %>
+              </div>
+              <div class="flex-1">
+                <input 
+                  type="text"
+                  name={"payment_steps[#{index}]"}
+                  value={step}
+                  placeholder={"Enter step #{index + 1}"}
+                  phx-change="validate"
+                  class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+              <%= if length(@payment_steps || []) > 1 do %>
+                <button
+                  type="button"
+                  phx-click="remove-step"
+                  phx-value-index={index}
+                  class="flex-shrink-0 mt-1 text-red-600 hover:text-red-800"
+                  title="Remove step"
+                >
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        
+        <button
+          type="button"
+          phx-click="add-step"
+          class="mt-3 text-sm text-emerald-600 hover:text-emerald-800 font-medium"
+        >
+          + Add Another Step
+        </button>
+      </div>
+      
+      <:actions>
+        <.button phx-disable-with="Saving...">Save Settings</.button>
+        <.link navigate={~p"/admin/mobile-money-payments"} class="px-4 py-2 text-gray-700 hover:text-gray-900">
+          Cancel
+        </.link>
+      </:actions>
+    </.simple_form>
+  <% end %>
+</div>
+

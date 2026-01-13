@@ -1,0 +1,588 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+    <.header class="!mb-0">
+      Donation Records
+      <:subtitle>Monitor and manage financial contributions.</:subtitle>
+    </.header>
+    <div class="flex items-center gap-3">
+       <.link
+        navigate={~p"/admin/mobile-money-payments"}
+        class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all"
+      >
+        <.icon name="hero-cog-6-tooth" class="h-5 w-5 text-gray-400" />
+        Payment Settings
+      </.link>
+    </div>
+  </div>
+
+  <%= if @live_action == :index do %>
+    <!-- Filters Card -->
+    <div class="mb-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <form phx-change="apply-filters" class="space-y-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Status</label>
+            <select name="status" class="block w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+              <option value="all" selected={@filters.status == "all"}>All Statuses</option>
+              <option value="pending" selected={@filters.status == "pending"}>Pending</option>
+              <option value="completed" selected={@filters.status == "completed"}>Completed</option>
+              <option value="failed" selected={@filters.status == "failed"}>Failed</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Payment Method</label>
+            <select name="payment_method" class="block w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+              <option value="all" selected={@filters.payment_method == "all"}>All Methods</option>
+              <option value="airtel" selected={@filters.payment_method == "airtel"}>Airtel Money</option>
+              <option value="mtn" selected={@filters.payment_method == "mtn"}>MTN Money</option>
+              <option value="zamtel" selected={@filters.payment_method == "zamtel"}>Zamtel Money</option>
+              <option value="card" selected={@filters.payment_method == "card"}>Card</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">From Date</label>
+            <input type="date" name="date_from" value={if @filters.date_from, do: Date.to_iso8601(@filters.date_from), else: ""} class="block w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">To Date</label>
+            <input type="date" name="date_to" value={if @filters.date_to, do: Date.to_iso8601(@filters.date_to), else: ""} class="block w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Search</label>
+            <div class="relative">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <.icon name="hero-magnifying-glass" class="h-4 w-4 text-gray-400" />
+              </div>
+              <input type="text" name="search" value={@filters.search} placeholder="Donor name..." class="block w-full rounded-lg border-gray-300 pl-10 text-sm focus:ring-emerald-500 focus:border-emerald-500" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+          <button type="button" phx-click="clear-filters" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+            Reset Filters
+          </button>
+          <div class="text-sm text-gray-500 italic">
+            <%= if @pagination do %>
+              Showing results <%= (@pagination.page_number - 1) * @pagination.page_size + 1 %> to <%= min(@pagination.page_number * @pagination.page_size, @pagination.total_entries) %>
+            <% end %>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <%= if @donations == [] do %>
+      <div class="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+        <.icon name="hero-circle-stack" class="mx-auto h-12 w-12 text-gray-300" />
+        <h3 class="mt-2 text-sm font-semibold text-gray-900">No donations found</h3>
+        <p class="mt-1 text-sm text-gray-500">Try adjusting your filters or search terms.</p>
+      </div>
+    <% else %>
+      <!-- Table Section -->
+      <div class="bg-white shadow-sm border border-gray-200 rounded-2xl lg:overflow-visible">
+        <div class="overflow-x-auto lg:overflow-visible">
+          <table class="min-w-full divide-y divide-gray-200 lg:overflow-visible">
+            <thead>
+              <tr class="bg-gray-50/50">
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">Date</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">Donor</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">Amount</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">Method</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">Status</th>
+                <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 lg:overflow-visible">
+              <%= for donation <- @donations do %>
+                <tr class="group hover:bg-emerald-50/30 transition-colors lg:overflow-visible">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= Calendar.strftime(donation.inserted_at, "%d %b %Y") %></div>
+                    <div class="text-xs text-gray-500"><%= Calendar.strftime(donation.inserted_at, "%H:%M") %></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-semibold text-gray-900"><%= donation.donor_name %></div>
+                    <div class="text-xs text-gray-500"><%= donation.donor_email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">K<%= donation.amount %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                     <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                        <div class={"h-1.5 w-1.5 rounded-full #{case donation.payment_method do "card" -> "bg-blue-500"; _ -> "bg-emerald-500" end}"}></div>
+                        <%= String.capitalize(donation.payment_method) %>
+                     </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap lg:overflow-visible">
+                    <form phx-change="ask-status-change">
+                      <input type="hidden" name="_id" value={donation.id} />
+                      <select
+                        name="status"
+                        class={[
+                          "rounded-full py-1 pl-3 pr-8 text-xs font-bold border-none ring-1 ring-inset focus:ring-2 cursor-pointer",
+                          donation.status == "completed" && "bg-emerald-50 text-emerald-700 ring-emerald-600/20 focus:ring-emerald-500",
+                          donation.status == "pending" && "bg-amber-50 text-amber-700 ring-amber-600/20 focus:ring-amber-500",
+                          donation.status == "failed" && "bg-rose-50 text-rose-700 ring-rose-600/20 focus:ring-rose-500"
+                        ]}
+                      >
+                        <option value="pending" selected={donation.status == "pending"}>Pending</option>
+                        <option value="completed" selected={donation.status == "completed"}>Completed</option>
+                        <option value="failed" selected={donation.status == "failed"}>Failed</option>
+                      </select>
+                    </form>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right lg:overflow-visible">
+                    <div class="flex items-center justify-end lg:overflow-visible">
+                      <.actions_dropdown id={"donation-actions-#{donation.id}"}>
+                        <:item navigate={~p"/admin/donations/#{donation.id}"}>
+                          <.icon name="hero-eye-mini" class="h-4 w-4 text-gray-400" />
+                          <span>View</span>
+                        </:item>
+                        <:item navigate={~p"/admin/donations/#{donation.id}/edit"}>
+                          <.icon name="hero-pencil-square-mini" class="h-4 w-4 text-gray-400" />
+                          <span>Edit</span>
+                        </:item>
+                        <:item navigate={~p"/admin/donations/#{donation.id}/print"}>
+                          <.icon name="hero-printer-mini" class="h-4 w-4 text-gray-400" />
+                          <span>Print PDF</span>
+                        </:item>
+                      </.actions_dropdown>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <%= if @pagination && @pagination.total_pages > 1 do %>
+          <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50/50 rounded-b-2xl">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <%= if @pagination.page_number > 1 do %>
+                <.link
+                  navigate={@build_patch_path.(@pagination.page_number - 1, @filters)}
+                  class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Previous
+                </.link>
+              <% else %>
+                <span class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-300 cursor-not-allowed">
+                  Previous
+                </span>
+              <% end %>
+              <%= if @pagination.page_number < @pagination.total_pages do %>
+                <.link
+                  navigate={@build_patch_path.(@pagination.page_number + 1, @filters)}
+                  class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Next
+                </.link>
+              <% else %>
+                <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-300 cursor-not-allowed">
+                  Next
+                </span>
+              <% end %>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <p class="text-sm text-gray-700">
+                Page <span class="font-bold"><%= @pagination.page_number %></span> of <span class="font-bold"><%= @pagination.total_pages %></span>
+              </p>
+              <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm bg-white" aria-label="Pagination">
+                <%= if @pagination.page_number > 1 do %>
+                  <.link
+                    navigate={@build_patch_path.(@pagination.page_number - 1, @filters)}
+                    class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                  >
+                    <span class="sr-only">Previous</span>
+                    <.icon name="hero-chevron-left-mini" class="h-5 w-5" />
+                  </.link>
+                <% end %>
+                <%= for page_num <- @page_range_helper.(@pagination.page_number, @pagination.total_pages) do %>
+                  <%= if page_num == @pagination.page_number do %>
+                    <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-emerald-600 bg-emerald-50 ring-1 ring-inset ring-emerald-600/20 focus:z-20 focus:outline-offset-0">
+                      <%= page_num %>
+                    </span>
+                  <% else %>
+                    <.link
+                      navigate={@build_patch_path.(page_num, @filters)}
+                      class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                    >
+                      <%= page_num %>
+                    </.link>
+                  <% end %>
+                <% end %>
+                <%= if @pagination.page_number < @pagination.total_pages do %>
+                  <.link
+                    navigate={@build_patch_path.(@pagination.page_number + 1, @filters)}
+                    class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                  >
+                    <span class="sr-only">Next</span>
+                    <.icon name="hero-chevron-right-mini" class="h-5 w-5" />
+                  </.link>
+                <% end %>
+              </nav>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Stats Summary Grid -->
+      <div class="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-emerald-100 rounded-lg p-3 text-emerald-600">
+              <.icon name="hero-currency-dollar" class="h-6 w-6" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 truncate">Total Revenue</p>
+              <p class="text-2xl font-bold text-gray-900">K<%= @pagination.total_amount || 0 %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-amber-100 rounded-lg p-3 text-amber-600">
+              <.icon name="hero-clock" class="h-6 w-6" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 truncate">Pending</p>
+              <p class="text-2xl font-bold text-gray-900"><%= @pagination.pending_count || 0 %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3 text-blue-600">
+              <.icon name="hero-check-badge" class="h-6 w-6" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 truncate">Completed</p>
+              <p class="text-2xl font-bold text-gray-900"><%= @pagination.completed_count || 0 %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-rose-100 rounded-lg p-3 text-rose-600">
+              <.icon name="hero-x-circle" class="h-6 w-6" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 truncate">Failed</p>
+              <p class="text-2xl font-bold text-gray-900"><%= @pagination.failed_count || 0 %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Status Change Confirmation Modal -->
+    <.modal
+      :if={@confirm_status_change}
+      id="confirm-status-change"
+      show
+      on_cancel={JS.push("cancel-status-change")}
+    >
+      <div class="text-center">
+        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+          <.icon name="hero-exclamation-triangle" class="h-6 w-6 text-amber-600" />
+        </div>
+        <h3 class="mt-4 text-lg font-semibold text-gray-900">Change Donation Status</h3>
+        <div class="mt-2 text-sm text-gray-500">
+          <p>Are you sure you want to change the status of this donation?</p>
+          <div class="mt-4 p-4 bg-gray-50 rounded-lg text-left">
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Donor:</span>
+                <span class="text-gray-900"><%= @confirm_status_change.donor_name %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Amount:</span>
+                <span class="text-gray-900">K<%= @confirm_status_change.amount %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Current Status:</span>
+                <span class={[
+                  "px-2 py-1 rounded-full text-xs font-bold",
+                  @confirm_status_change.current_status == "completed" && "bg-emerald-100 text-emerald-700",
+                  @confirm_status_change.current_status == "pending" && "bg-amber-100 text-amber-700",
+                  @confirm_status_change.current_status == "failed" && "bg-rose-100 text-rose-700"
+                ]}>
+                  <%= String.capitalize(@confirm_status_change.current_status) %>
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">New Status:</span>
+                <span class={[
+                  "px-2 py-1 rounded-full text-xs font-bold",
+                  @confirm_status_change.new_status == "completed" && "bg-emerald-100 text-emerald-700",
+                  @confirm_status_change.new_status == "pending" && "bg-amber-100 text-amber-700",
+                  @confirm_status_change.new_status == "failed" && "bg-rose-100 text-rose-700"
+                ]}>
+                  <%= String.capitalize(@confirm_status_change.new_status) %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          phx-click="cancel-status-change"
+          class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          phx-click="confirm-status-change"
+          class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+        >
+          Confirm Change
+        </button>
+      </div>
+    </.modal>
+  <% end %>
+
+  <!-- Show Donation Details -->
+  <%= if @live_action == :show && @selected_donation do %>
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-6">
+        <.header>
+          Donation Details
+        </.header>
+        <.link navigate={~p"/admin/donations"} class="text-sm font-medium text-gray-600 hover:text-gray-900">
+          ← Back to Donations
+        </.link>
+      </div>
+
+      <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Donation #<%= @selected_donation.id %></h3>
+              <p class="text-sm text-gray-500 mt-1">
+                <%= Calendar.strftime(@selected_donation.inserted_at, "%B %d, %Y at %I:%M %p") %>
+              </p>
+            </div>
+            <span class={[
+              "inline-flex rounded-full px-3 py-1 text-xs font-bold",
+              @selected_donation.status == "completed" && "bg-emerald-100 text-emerald-700",
+              @selected_donation.status == "pending" && "bg-amber-100 text-amber-700",
+              @selected_donation.status == "failed" && "bg-rose-100 text-rose-700"
+            ]}>
+              <%= String.capitalize(@selected_donation.status) %>
+            </span>
+          </div>
+        </div>
+
+        <div class="px-6 py-6">
+          <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Donor Name</dt>
+              <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @selected_donation.donor_name %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Email</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @selected_donation.donor_email %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Phone</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @selected_donation.donor_phone || "N/A" %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Amount</dt>
+              <dd class="mt-1 text-lg font-bold text-gray-900">K<%= @selected_donation.amount %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Payment Method</dt>
+              <dd class="mt-1 text-sm text-gray-900 capitalize"><%= @selected_donation.payment_method %></dd>
+            </div>
+            <%= if @selected_donation.donor_message do %>
+              <div class="sm:col-span-2">
+                <dt class="text-sm font-medium text-gray-500">Message</dt>
+                <dd class="mt-1 text-sm text-gray-900 bg-gray-50 rounded-lg p-4"><%= @selected_donation.donor_message %></dd>
+              </div>
+            <% end %>
+          </dl>
+
+          <div class="mt-8 flex items-center gap-3">
+            <.link
+              navigate={~p"/admin/donations/#{@selected_donation.id}/edit"}
+              class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
+            >
+              <.icon name="hero-pencil-square-mini" class="h-4 w-4" />
+              Edit
+            </.link>
+            <.link
+              navigate={~p"/admin/donations/#{@selected_donation.id}/print"}
+              class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700"
+            >
+              <.icon name="hero-printer-mini" class="h-4 w-4" />
+              Print PDF
+            </.link>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Edit Donation -->
+  <%= if @live_action == :edit && @selected_donation && @form do %>
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-6">
+        <.header>
+          Edit Donation
+        </.header>
+        <.link navigate={~p"/admin/donations/#{@selected_donation.id}"} class="text-sm font-medium text-gray-600 hover:text-gray-900">
+          ← Back to Details
+        </.link>
+      </div>
+
+      <div class="bg-white shadow-sm border border-gray-200 rounded-2xl p-6">
+        <.simple_form for={@form} phx-change="validate" phx-submit="save">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <.input field={@form[:donor_name]} label="Donor Name" required />
+            </div>
+            <div>
+              <.input field={@form[:donor_email]} label="Email Address" type="email" required />
+            </div>
+            <div>
+              <.input field={@form[:donor_phone]} label="Phone Number" type="tel" />
+            </div>
+            <div>
+              <.input field={@form[:payment_method]} label="Payment Method" />
+            </div>
+            <div>
+              <.input field={@form[:status]} type="select" label="Status" options={[{"Pending", "pending"}, {"Completed", "completed"}, {"Failed", "failed"}]} />
+            </div>
+            <div class="md:col-span-2">
+              <.input field={@form[:donor_message]} type="textarea" label="Message" rows="4" />
+            </div>
+          </div>
+
+          <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p class="text-sm text-amber-800">
+              <strong>Note:</strong> The donation amount (K<%= @selected_donation.amount %>) cannot be changed for security reasons.
+            </p>
+          </div>
+
+          <:actions>
+            <.button phx-disable-with="Saving...">Save Changes</.button>
+          </:actions>
+        </.simple_form>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Print Donation -->
+  <%= if @live_action == :print && @selected_donation do %>
+    <div class="mt-8 print:mt-0">
+      <div class="bg-white shadow-sm border border-gray-200 rounded-2xl p-8 print:shadow-none print:ring-0">
+        <div class="flex items-center justify-between mb-6 print:hidden">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Donation Receipt</h2>
+            <p class="text-sm text-gray-500 mt-1">Print or download this receipt</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              onclick="window.print()"
+              class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
+            >
+              <.icon name="hero-printer-mini" class="h-4 w-4" />
+              Print
+            </button>
+            <.link
+              navigate={~p"/admin/donations/#{@selected_donation.id}"}
+              class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700"
+            >
+              Back
+            </.link>
+          </div>
+        </div>
+
+        <div class="print:block">
+          <div class="text-center mb-8 print:mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">ThriveAid</h1>
+            <p class="text-gray-600">Donation Receipt</p>
+          </div>
+
+          <div class="border-t border-b border-gray-200 py-6 mb-6">
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Receipt Number</p>
+                <p class="text-lg font-bold text-gray-900">#<%= @selected_donation.id %></p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-medium text-gray-500 mb-1">Date</p>
+                <p class="text-lg font-bold text-gray-900">
+                  <%= Calendar.strftime(@selected_donation.inserted_at, "%B %d, %Y") %>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6 mb-8">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Donor Information</h3>
+              <dl class="grid grid-cols-2 gap-4">
+                <div>
+                  <dt class="text-sm text-gray-500">Name</dt>
+                  <dd class="text-base font-medium text-gray-900"><%= @selected_donation.donor_name %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm text-gray-500">Email</dt>
+                  <dd class="text-base text-gray-900"><%= @selected_donation.donor_email %></dd>
+                </div>
+                <%= if @selected_donation.donor_phone do %>
+                  <div>
+                    <dt class="text-sm text-gray-500">Phone</dt>
+                    <dd class="text-base text-gray-900"><%= @selected_donation.donor_phone %></dd>
+                  </div>
+                <% end %>
+              </dl>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Donation Details</h3>
+              <dl class="grid grid-cols-2 gap-4">
+                <div>
+                  <dt class="text-sm text-gray-500">Amount</dt>
+                  <dd class="text-2xl font-bold text-emerald-600">K<%= @selected_donation.amount %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm text-gray-500">Payment Method</dt>
+                  <dd class="text-base text-gray-900 capitalize"><%= @selected_donation.payment_method %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm text-gray-500">Status</dt>
+                  <dd class="text-base font-medium text-gray-900 capitalize"><%= @selected_donation.status %></dd>
+                </div>
+              </dl>
+            </div>
+
+            <%= if @selected_donation.donor_message do %>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Message</h3>
+                <p class="text-gray-700"><%= @selected_donation.donor_message %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
+            <p>Thank you for your generous contribution to ThriveAid.</p>
+            <p class="mt-1">Your support helps us make a difference in the lives of young people.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

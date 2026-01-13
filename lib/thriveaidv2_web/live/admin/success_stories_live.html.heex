@@ -12,12 +12,13 @@
   <div
     id="success-stories"
     phx-update="stream"
-    class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+    class="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8"
   >
+    <%!-- REMOVED overflow-hidden from class to allow dropdowns to show --%>
     <div
       :for={{dom_id, story} <- @streams.success_stories}
       id={dom_id}
-      class="group rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden"
+      class="group relative flex flex-col rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300"
     >
       <div class="relative h-44 bg-gray-100">
         <%= if story.cover_image_path do %>
@@ -47,35 +48,26 @@
 
         <p class="mt-3 text-sm text-gray-600 line-clamp-3"><%= story.summary %></p>
 
-        <div class="mt-5 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <.link
-              patch={~p"/admin/success-stories/#{story.id}/edit"}
-              class="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-800 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-            >
-              Edit
-            </.link>
-            <button
-              type="button"
-              phx-click="toggle-publish"
-              phx-value-id={story.id}
-              class={[
-                "admin-btn inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold transition",
-                story.is_published && "bg-gray-900 text-white hover:bg-gray-800" || "bg-emerald-600 text-white hover:bg-emerald-700"
-              ]}
-            >
-              <%= if story.is_published, do: "Unpublish", else: "Publish" %>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            phx-click="ask-delete"
-            phx-value-id={story.id}
-            class="admin-btn text-sm font-semibold text-rose-700 hover:text-rose-800"
-          >
-            Delete
-          </button>
+        <div class="mt-5">
+          <.actions_dropdown id={"story-actions-#{story.id}"}>
+            <:item patch={~p"/admin/success-stories/#{story.id}/edit"}>
+              <.icon name="hero-pencil-square-mini" class="h-4 w-4 text-gray-400" />
+              <span>Edit</span>
+            </:item>
+            <:item phx-click="toggle-publish" phx-value-id={story.id}>
+              <%= if story.is_published do %>
+                <.icon name="hero-eye-slash-mini" class="h-4 w-4 text-gray-400" />
+                <span>Unpublish</span>
+              <% else %>
+                <.icon name="hero-eye-mini" class="h-4 w-4 text-emerald-500" />
+                <span>Publish</span>
+              <% end %>
+            </:item>
+            <:item phx-click="ask-delete" phx-value-id={story.id} class="text-rose-600">
+              <.icon name="hero-trash-mini" class="h-4 w-4 text-rose-500" />
+              <span>Delete</span>
+            </:item>
+          </.actions_dropdown>
         </div>
       </div>
     </div>

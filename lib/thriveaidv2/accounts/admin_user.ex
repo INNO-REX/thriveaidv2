@@ -4,7 +4,7 @@ defmodule Thriveaidv2.Accounts.AdminUser do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @valid_permissions ~w(manage_admins manage_content manage_messages)
+  @valid_permissions ~w(manage_admins manage_content manage_messages manage_partners manage_donations)
 
   schema "admin_users" do
     field :email, :string

@@ -24,7 +24,8 @@ defmodule Thriveaidv2.Accounts do
   end
 
   def has_permission?(%AdminUser{} = user, permission) when is_binary(permission) do
-    permission in (user.permissions || [])
+    # Superadmins have all permissions
+    user.is_superadmin == true || permission in (user.permissions || [])
   end
 
   def create_admin_user(attrs \\ %{}) do

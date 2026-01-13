@@ -1,6 +1,8 @@
 defmodule Thriveaidv2Web.Components.Layouts.PartnersComponent do
   use Phoenix.Component
 
+  attr :partners, :list, default: []
+
   def partners_section(assigns) do
     ~H"""
     <!-- Enhanced Partners Section -->
@@ -21,25 +23,23 @@ defmodule Thriveaidv2Web.Components.Layouts.PartnersComponent do
       </div>
 
       <!-- Infinite Scrolling Marquee -->
-      <div class="mt-12 md:mt-16 partners-marquee" x-data="{}" x-init="$el.setAttribute('data-animated', true)">
+      <div :if={@partners != []} class="mt-12 md:mt-16 partners-marquee" x-data="{}" x-init="$el.setAttribute('data-animated', true)">
         <div class="partners-track">
-          <!-- Logos are duplicated for seamless looping -->
-          <div class="partner-logo-item"><img src="/images/logo-header-4.png" alt="Partner Logo 1" /></div>
-          <div class="partner-logo-item"><img src="/images/axis.png" alt="Axis" /></div>
-          <div class="partner-logo-item"><img src="/images/FOH.png" alt="Friends of Homabay" /></div>
-          <!-- Add more partners here if needed -->
-          <div class="partner-logo-item"><img src="/images/logo-header-4.png" alt="Partner Logo 1" /></div>
-          <div class="partner-logo-item"><img src="/images/axis.png" alt="Axis" /></div>
-          <div class="partner-logo-item"><img src="/images/FOH.png" alt="Friends of Homabay" /></div>
+          <!-- First set of logos -->
+          <div :for={partner <- @partners} class="partner-logo-item">
+            <a :if={partner.website_url} href={partner.website_url} target="_blank" rel="noopener noreferrer" class="block w-full h-full flex items-center justify-center">
+              <img src={partner.logo_path} alt={partner.name} />
+            </a>
+            <img :if={!partner.website_url} src={partner.logo_path} alt={partner.name} />
+          </div>
 
-          <!-- Duplicate set for the loop -->
-          <div class="partner-logo-item"><img src="/images/logo-header-4.png" alt="Partner Logo 1" /></div>
-          <div class="partner-logo-item"><img src="/images/axis.png" alt="Axis" /></div>
-          <div class="partner-logo-item"><img src="/images/FOH.png" alt="Friends of Homabay" /></div>
-          <!-- Add more partners here if needed -->
-          <div class="partner-logo-item"><img src="/images/logo-header-4.png" alt="Partner Logo 1" /></div>
-          <div class="partner-logo-item"><img src="/images/axis.png" alt="Axis" /></div>
-          <div class="partner-logo-item"><img src="/images/FOH.png" alt="Friends of Homabay" /></div>
+          <!-- Duplicate set for seamless looping -->
+          <div :for={partner <- @partners} class="partner-logo-item">
+            <a :if={partner.website_url} href={partner.website_url} target="_blank" rel="noopener noreferrer" class="block w-full h-full flex items-center justify-center">
+              <img src={partner.logo_path} alt={partner.name} />
+            </a>
+            <img :if={!partner.website_url} src={partner.logo_path} alt={partner.name} />
+          </div>
         </div>
       </div>
     </div>

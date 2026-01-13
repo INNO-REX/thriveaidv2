@@ -6,12 +6,14 @@ defmodule Thriveaidv2Web.SuccessStories.SuccessStoriesLive do
   @impl true
   def mount(_params, _session, socket) do
     stories = Content.list_published_success_stories()
+    partners = Content.list_active_partners()
 
     {:ok,
      assign(socket,
        success_stories: stories,
        selected_story: nil,
-       current_page: "success-stories"
+       current_page: "success-stories",
+       partners: partners
      )}
   end
 

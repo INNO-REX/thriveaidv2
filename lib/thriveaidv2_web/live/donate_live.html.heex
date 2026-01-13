@@ -73,8 +73,8 @@
               <img src={method.logo} alt={method.name} class="h-16 w-auto object-contain"/>
             </div>
             <div class="p-4 bg-gray-900/50">
-              <h3 class="font-semibold text-lg mb-1">{method.name}</h3>
-              <p class="text-sm text-gray-400">{method.description}</p>
+              <h3 class="font-semibold text-lg mb-1"><%= method.name %></h3>
+              <p class="text-sm text-gray-400"><%= method.description %></p>
             </div>
           </div>
         <% end %>
@@ -93,39 +93,41 @@
     <div class={"transition-all duration-500 #{if @donation_step == "details", do: "block", else: "hidden"}"}>
       <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 md:p-8">
         <h2 class="text-2xl font-semibold mb-6">Your Details</h2>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
-            <input type="text"
-                   name="name"
-                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
-                   value={@donor.name}
-                   phx-blur="update-donor"/>
+        <form phx-change="update-donor" phx-submit="update-donor">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+              <input type="text"
+                     name="name"
+                     class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                     value={@donor.name || ""}
+                     phx-debounce="300"/>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+              <input type="email"
+                     name="email"
+                     class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                     value={@donor.email || ""}
+                     phx-debounce="300"/>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
+              <input type="tel"
+                     name="phone"
+                     class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                     value={@donor.phone || ""}
+                     phx-debounce="300"/>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Message (Optional)</label>
+              <textarea name="message"
+                        rows="3"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+                        phx-debounce="300"><%= @donor.message || "" %></textarea>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
-            <input type="email"
-                   name="email"
-                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
-                   value={@donor.email}
-                   phx-blur="update-donor"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
-            <input type="tel"
-                   name="phone"
-                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
-                   value={@donor.phone}
-                   phx-blur="update-donor"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Message (Optional)</label>
-            <textarea name="message"
-                      rows="3"
-                      class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
-                      phx-blur="update-donor"><%= @donor.message %></textarea>
-          </div>
-        </div>
+        </form>
 
         <div class="mt-8 flex justify-between">
           <button class="px-6 py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition-all duration-300"
@@ -152,16 +154,64 @@
           </div>
 
           <%= if @selected_method do %>
-            <div class="bg-gray-800/50 rounded-lg p-4">
-              <h3 class="text-lg font-medium mb-2">Payment Method</h3>
-              <div class="flex items-center">
-                <img src={@selected_method.logo} alt={@selected_method.name} class="h-8 w-auto mr-3"/>
-                <span class="font-medium"><%= @selected_method.name %></span>
+            <%= if Map.get(@selected_method, :card) do %>
+              <!-- Card Payment Method -->
+              <div class="bg-gray-800/50 rounded-lg p-4">
+                <h3 class="text-lg font-medium mb-2">Payment Method</h3>
+                <div class="flex items-center">
+                  <img src={@selected_method.logo} alt={@selected_method.name} class="h-8 w-auto mr-3"/>
+                  <span class="font-medium"><%= @selected_method.name %></span>
+                </div>
               </div>
-              <%= if Map.get(@selected_method, :number) do %>
-                <p class="mt-2 text-gray-400">Send to: <span class="font-medium text-white"><%= @selected_method.number %></span></p>
-              <% end %>
-            </div>
+            <% else %>
+              <!-- Mobile Money Payment Instructions -->
+              <div class="bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg p-6 border border-red-500/30">
+                <div class="flex items-center mb-4">
+                  <img src={@selected_method.logo} alt={@selected_method.name} class="h-10 w-auto mr-3"/>
+                  <h3 class="text-xl font-semibold"><%= @selected_method.name %> Payment</h3>
+                </div>
+                
+                <div class="bg-gray-900/50 rounded-lg p-5 mb-4">
+                  <h4 class="text-lg font-medium mb-3 text-red-400">Payment Details</h4>
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                      <span class="text-gray-400">Amount to Send:</span>
+                      <span class="text-2xl font-bold text-red-400">K<%= @amount %></span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                      <span class="text-gray-400">Send to Number:</span>
+                      <span class="text-lg font-semibold text-white"><%= @selected_method.number %></span>
+                    </div>
+                    <div class="flex justify-between items-center py-2">
+                      <span class="text-gray-400">Account Name:</span>
+                      <span class="text-lg font-semibold text-white"><%= Map.get(@selected_method, :account_name, "ThriveAid Foundation") %></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-blue-900/20 rounded-lg p-5 border border-blue-500/30">
+                  <h4 class="text-lg font-medium mb-3 text-blue-400">How to Complete Payment</h4>
+                  <%= if Map.get(@selected_method, :payment_steps_html) do %>
+                    <div class="space-y-3">
+                      <%= raw(
+                        @selected_method.payment_steps_html
+                        |> String.replace("KAMOUNT", "K#{@amount}")
+                        |> String.replace("PHONENUMBER", @selected_method.number)
+                        |> String.replace("ACCOUNTNAME", Map.get(@selected_method, :account_name, "ThriveAid Foundation"))
+                      ) %>
+                    </div>
+                  <% else %>
+                    <p class="text-gray-300">Payment instructions will be displayed here.</p>
+                  <% end %>
+                </div>
+
+                <div class="mt-4 p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+                  <p class="text-sm text-yellow-200">
+                    <strong>Important:</strong> Make sure the recipient name matches <strong><%= Map.get(@selected_method, :account_name, "ThriveAid Foundation") %></strong> before confirming your payment.
+                  </p>
+                </div>
+              </div>
+            <% end %>
           <% end %>
 
           <%= if @donor do %>
@@ -197,16 +247,93 @@
             Back
           </button>
           <%= if @selected_method do %>
-            <%= if @selected_method.card do %>
+            <%= if Map.get(@selected_method, :card) do %>
               <button class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300">
                 Proceed to Payment
               </button>
             <% else %>
-              <button class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300">
+              <button class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300"
+                      phx-click="complete-donation">
                 Complete Donation
               </button>
             <% end %>
           <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Thank You Page -->
+    <div class={"transition-all duration-500 #{if @donation_step == "thank_you", do: "block", else: "hidden"}"}>
+      <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8 md:p-12 text-center">
+        <div class="max-w-2xl mx-auto">
+          <!-- Success Icon -->
+          <div class="mb-6 flex justify-center">
+            <div class="h-20 w-20 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+          </div>
+
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            Thank You for Your <span class="text-green-400">Generosity</span>!
+          </h2>
+          
+          <p class="text-xl text-gray-300 mb-6">
+            Your donation of <span class="text-green-400 font-semibold">K<%= @amount %></span> has been recorded.
+          </p>
+
+          <div class="bg-gray-800/50 rounded-lg p-6 mb-8 text-left">
+            <h3 class="text-lg font-semibold mb-4 text-green-400">What Happens Next?</h3>
+            <ul class="space-y-3 text-gray-300">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold mr-3 mt-0.5 text-sm">1</span>
+                <span>Complete your payment using the instructions provided above</span>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold mr-3 mt-0.5 text-sm">2</span>
+                <span>You will receive a confirmation email at <strong class="text-white"><%= @donor.email %></strong></span>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold mr-3 mt-0.5 text-sm">3</span>
+                <span>Your contribution will help transform lives and make a real difference</span>
+              </li>
+            </ul>
+          </div>
+
+          <%= if @selected_method && !Map.get(@selected_method, :card) do %>
+            <div class="bg-blue-900/20 rounded-lg p-6 border border-blue-500/30 mb-8">
+              <h4 class="text-lg font-medium mb-3 text-blue-400">Payment Reminder</h4>
+              <p class="text-gray-300 mb-4">
+                Please complete your payment to <strong class="text-white"><%= @selected_method.name %></strong>:
+              </p>
+              <div class="bg-gray-900/50 rounded-lg p-4 space-y-2 text-left">
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Amount:</span>
+                  <span class="text-xl font-bold text-green-400">K<%= @amount %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Send to:</span>
+                  <span class="font-semibold text-white"><%= @selected_method.number %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Account Name:</span>
+                  <span class="font-semibold text-white"><%= Map.get(@selected_method, :account_name, "ThriveAid Foundation") %></span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <.link navigate={~p"/"} class="px-6 py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition-all duration-300">
+              Return to Home
+            </.link>
+            <button 
+              phx-click="start-new-donation"
+              class="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300">
+              Make Another Donation
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -283,4 +410,5 @@
       transform: translateY(0);
     }
   }
-</style> 
+</style>
+

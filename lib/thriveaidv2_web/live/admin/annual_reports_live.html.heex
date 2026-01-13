@@ -1,0 +1,321 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <.header>
+    Annual Reports
+    <:subtitle>Manage annual reports displayed on the public site.</:subtitle>
+    <:actions>
+      <.link patch={~p"/admin/annual-reports/new"} class="inline-flex items-center gap-x-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-all">
+        <.icon name="hero-plus-mini" class="h-5 w-5" />
+        New Annual Report
+      </.link>
+    </:actions>
+  </.header>
+
+  <%= if @reports_count == 0 do %>
+    <div class="mt-8 text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-semibold text-gray-900">No annual reports</h3>
+      <p class="mt-1 text-sm text-gray-500">Get started by creating a new annual report.</p>
+      <div class="mt-6">
+        <.link patch={~p"/admin/annual-reports/new"} class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">
+          <.icon name="hero-plus-mini" class="h-5 w-5 mr-2" />
+          New Annual Report
+        </.link>
+      </div>
+    </div>
+  <% else %>
+    <!-- Current Active Report (Latest Published) -->
+    <%= if @latest_published do %>
+      <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Report (Visible on Website)</h2>
+        <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
+          <div
+            id={"annual-report-#{@latest_published.id}"}
+            class="group relative flex flex-col rounded-2xl bg-white border-2 border-emerald-500 shadow-lg hover:shadow-xl transition-shadow duration-300"
+          >
+            <div class="relative h-48 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-t-2xl flex items-center justify-center p-6">
+              <.icon name="hero-document-text" class="h-16 w-16 text-white/80" />
+              <div class="absolute top-3 left-3">
+                <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">
+                  Published
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-1 flex-col p-5">
+              <div class="flex-1">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-gray-900">
+                      <%= @latest_published.title || "Annual Report #{@latest_published.year}" %>
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                      Year: <span class="font-semibold"><%= @latest_published.year %></span>
+                    </p>
+                  </div>
+                  <div class="ml-2 flex-shrink-0">
+                    <.actions_dropdown id={"annual-report-actions-#{@latest_published.id}"}>
+                      <:item patch={~p"/admin/annual-reports/#{@latest_published.id}/edit"} icon="hero-pencil-square-mini">
+                        <span>Edit</span>
+                      </:item>
+                      <:item phx-click="toggle-publish" phx-value-id={@latest_published.id} icon="hero-eye-slash-mini">
+                        <span>Unpublish</span>
+                      </:item>
+                      <:item phx-click="ask-delete" phx-value-id={@latest_published.id} class="text-rose-600" icon="hero-trash-mini">
+                        <span>Delete</span>
+                      </:item>
+                    </.actions_dropdown>
+                  </div>
+                </div>
+
+                <%= if @latest_published.subtitle do %>
+                  <p class="mt-2 text-sm text-gray-500 line-clamp-2"><%= @latest_published.subtitle %></p>
+                <% end %>
+
+                <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                  <%= if @latest_published.pdf_path do %>
+                    <span class="inline-flex items-center gap-1">
+                      <.icon name="hero-document-arrow-down" class="h-4 w-4" />
+                      PDF Available
+                    </span>
+                  <% end %>
+                  <%= if @latest_published.published_at do %>
+                    <span class="inline-flex items-center gap-1">
+                      <.icon name="hero-calendar" class="h-4 w-4" />
+                      <%= Calendar.strftime(@latest_published.published_at, "%b %Y") %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Report History -->
+    <%= if length(@history_reports) > 0 do %>
+      <div class={if(@latest_published, do: "mt-12", else: "mt-8")}>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Report History</h2>
+        <div
+          id="annual-reports"
+          phx-update="stream"
+          class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8"
+        >
+          <div
+            :for={{dom_id, report} <- @streams.annual_reports}
+            :if={!@latest_published || report.id != @latest_published.id}
+            id={dom_id}
+            class="group relative flex flex-col rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300"
+          >
+            <div class="relative h-48 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-t-2xl flex items-center justify-center p-6">
+              <.icon name="hero-document-text" class="h-16 w-16 text-white/80" />
+              <div class="absolute top-3 left-3">
+                <span class={[
+                  "inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ring-1 ring-inset",
+                  report.is_published && "bg-emerald-50 text-emerald-700 ring-emerald-600/20" || "bg-gray-50 text-gray-600 ring-gray-500/10"
+                ]}>
+                  <%= if report.is_published, do: "Published", else: "Draft" %>
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-1 flex-col p-5">
+              <div class="flex-1">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-gray-900">
+                      <%= report.title || "Annual Report #{report.year}" %>
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                      Year: <span class="font-semibold"><%= report.year %></span>
+                    </p>
+                  </div>
+                  <div class="ml-2 flex-shrink-0">
+                    <.actions_dropdown id={"annual-report-actions-#{report.id}"}>
+                      <:item patch={~p"/admin/annual-reports/#{report.id}/edit"} icon="hero-pencil-square-mini">
+                        <span>Edit</span>
+                      </:item>
+                      <:item phx-click="toggle-publish" phx-value-id={report.id} icon={if report.is_published, do: "hero-eye-slash-mini", else: "hero-eye-mini"}>
+                        <span><%= if report.is_published, do: "Unpublish", else: "Publish" %></span>
+                      </:item>
+                      <:item phx-click="ask-delete" phx-value-id={report.id} class="text-rose-600" icon="hero-trash-mini">
+                        <span>Delete</span>
+                      </:item>
+                    </.actions_dropdown>
+                  </div>
+                </div>
+
+                <%= if report.subtitle do %>
+                  <p class="mt-2 text-sm text-gray-500 line-clamp-2"><%= report.subtitle %></p>
+                <% end %>
+
+                <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                  <%= if report.pdf_path do %>
+                    <span class="inline-flex items-center gap-1">
+                      <.icon name="hero-document-arrow-down" class="h-4 w-4" />
+                      PDF Available
+                    </span>
+                  <% end %>
+                  <%= if report.published_at do %>
+                    <span class="inline-flex items-center gap-1">
+                      <.icon name="hero-calendar" class="h-4 w-4" />
+                      <%= Calendar.strftime(report.published_at, "%b %Y") %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Confirm Delete Modal -->
+  <.modal
+    :if={@confirm_delete}
+    id="confirm-delete-report"
+    show
+    on_cancel={JS.push("cancel-delete")}
+  >
+    <div class="text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-100">
+        <.icon name="hero-exclamation-triangle" class="h-6 w-6 text-rose-600" />
+      </div>
+      <h3 class="mt-4 text-lg font-semibold text-gray-900">Delete Annual Report</h3>
+      <p class="mt-2 text-sm text-gray-500">
+        Are you sure you want to delete <b><%= @confirm_delete.title %></b>? This action cannot be undone.
+      </p>
+    </div>
+    <div class="mt-6 flex justify-end gap-3">
+      <.button phx-click="cancel-delete" class="bg-gray-100 !text-gray-700 hover:bg-gray-200 border-none">
+        Cancel
+      </.button>
+      <.button phx-click="confirm-delete" class="bg-rose-600 hover:bg-rose-700">
+        Confirm Delete
+      </.button>
+    </div>
+  </.modal>
+
+  <!-- Form Modal -->
+  <.modal
+    :if={@live_action in [:new, :edit]}
+    id="annual-report-modal"
+    show
+    on_cancel={JS.patch(~p"/admin/annual-reports")}
+  >
+    <.header class="mb-6">
+      <%= if @live_action == :new, do: "Create New Annual Report", else: "Edit Annual Report" %>
+      <:subtitle>Fill in the information below to manage the annual report.</:subtitle>
+    </.header>
+
+    <.simple_form for={@form} as={:annual_report} phx-change="validate" phx-submit="save" novalidate class="mt-8">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <.input field={@form[:year]} label="Year" type="number" required />
+        </div>
+
+        <div>
+          <.input field={@form[:title]} label="Title" placeholder="e.g. Annual Report 2024" required />
+        </div>
+
+        <div class="sm:col-span-2">
+          <.input field={@form[:subtitle]} label="Subtitle" placeholder="e.g. Transparency • Accountability • Impact" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <.input field={@form[:description]} type="textarea" label="Description" rows="4" placeholder="A brief description of the annual report..." />
+        </div>
+
+        <div>
+          <.input field={@form[:young_people_empowered]} label="Young People Empowered" type="number" />
+        </div>
+
+        <div>
+          <.input field={@form[:core_program_areas]} label="Core Program Areas" type="number" />
+        </div>
+
+        <div>
+          <.input field={@form[:volunteers_engaged]} label="Volunteers Engaged" type="number" />
+        </div>
+
+        <div>
+          <.input field={@form[:strategic_partners]} label="Strategic Partners" type="number" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <.label>PDF File</.label>
+          <%= if @live_action == :edit && @annual_report && @annual_report.pdf_path && !@remove_pdf do %>
+            <div class="mt-2 mb-3 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <.icon name="hero-document" class="h-5 w-5 text-gray-400" />
+                <span class="text-sm text-gray-700"><%= Path.basename(@annual_report.pdf_path) %></span>
+              </div>
+              <button
+                type="button"
+                phx-click="remove-pdf"
+                class="text-sm text-rose-600 hover:text-rose-700 font-medium"
+              >
+                Remove
+              </button>
+            </div>
+          <% end %>
+
+          <div class="mt-2">
+            <.live_file_input upload={@uploads.pdf} class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
+          </div>
+          
+          <%= for entry <- @uploads.pdf.entries do %>
+            <div class="mt-2 p-2 bg-gray-50 rounded border">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700"><%= entry.client_name %></span>
+                <button
+                  type="button"
+                  phx-click="cancel-upload"
+                  phx-value-ref={entry.ref}
+                  class="text-xs text-rose-600 hover:text-rose-700"
+                >
+                  Remove
+                </button>
+              </div>
+              <div class="mt-1">
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-600 transition-all" style={"width: #{entry.progress}%"}></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1"><%= entry.progress %>% uploaded</p>
+              </div>
+            </div>
+          <% end %>
+          
+          <p class="mt-1 text-xs text-gray-500">Maximum file size: 10MB (PDF only)</p>
+          <%= if @form[:pdf_path] && @form[:pdf_path].errors != [] do %>
+            <%= for err <- @form[:pdf_path].errors do %>
+              <p class="mt-1 text-sm text-red-600"><%= translate_error(err) %></p>
+            <% end %>
+          <% end %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <.input field={@form[:is_published]} type="checkbox" label="Publish this report" />
+        </div>
+      </div>
+
+      <:actions>
+        <div class="flex w-full justify-end gap-3">
+          <.button type="button" phx-click={JS.patch(~p"/admin/annual-reports")} class="bg-white !text-gray-700 border border-gray-300">
+            Cancel
+          </.button>
+          <.button 
+            type="submit" 
+            phx-disable-with="Saving..."
+          >
+            Save
+          </.button>
+        </div>
+      </:actions>
+    </.simple_form>
+  </.modal>
+</div>
+

@@ -6,12 +6,14 @@ defmodule Thriveaidv2Web.News.NewsLive do
   @impl true
   def mount(_params, _session, socket) do
     news_posts = Content.list_published_news_posts()
+    partners = Content.list_active_partners()
 
     {:ok,
      assign(socket,
        news_posts: news_posts,
        selected_post: nil,
-       current_page: "news"
+       current_page: "news",
+       partners: partners
      )}
   end
 

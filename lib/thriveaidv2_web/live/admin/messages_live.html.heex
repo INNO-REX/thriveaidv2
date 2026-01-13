@@ -7,13 +7,14 @@
   <div
     id="messages"
     phx-update="stream"
-    class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6"
+    class="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 lg:grid-cols-2 xl:gap-x-8"
   >
+    <%!-- REMOVED overflow-hidden from class to allow dropdowns to show --%>
     <div
       :for={{dom_id, msg} <- @streams.messages}
       id={dom_id}
       class={[
-        "rounded-2xl bg-white border shadow-sm hover:shadow-md transition overflow-hidden",
+        "group relative flex flex-col rounded-2xl bg-white border shadow-sm hover:shadow-lg transition-shadow duration-300",
         msg.is_read && "border-gray-200" || "border-emerald-300"
       ]}
     >
@@ -50,27 +51,22 @@
         </div>
       </button>
 
-      <div class="px-5 pb-5 flex items-center justify-between">
-        <button
-          type="button"
-          phx-click="toggle-read"
-          phx-value-id={msg.id}
-          class={[
-            "admin-btn inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold transition",
-            msg.is_read && "bg-gray-900 text-white hover:bg-gray-800" || "bg-emerald-600 text-white hover:bg-emerald-700"
-          ]}
-        >
-          <%= if msg.is_read, do: "Mark Unread", else: "Mark Read" %>
-        </button>
-
-        <button
-          type="button"
-          phx-click="ask-delete"
-          phx-value-id={msg.id}
-          class="admin-btn text-sm font-semibold text-rose-700 hover:text-rose-800"
-        >
-          Delete
-        </button>
+      <div class="px-5 pb-5">
+        <.actions_dropdown id={"message-actions-#{msg.id}"}>
+          <:item phx-click="toggle-read" phx-value-id={msg.id}>
+            <%= if msg.is_read do %>
+              <.icon name="hero-envelope-open-mini" class="h-4 w-4 text-gray-400" />
+              <span>Mark Unread</span>
+            <% else %>
+              <.icon name="hero-envelope-mini" class="h-4 w-4 text-emerald-500" />
+              <span>Mark Read</span>
+            <% end %>
+          </:item>
+          <:item phx-click="ask-delete" phx-value-id={msg.id} class="text-rose-600">
+            <.icon name="hero-trash-mini" class="h-4 w-4 text-rose-500" />
+            <span>Delete</span>
+          </:item>
+        </.actions_dropdown>
       </div>
     </div>
   </div>

@@ -71,11 +71,52 @@
       </.link>
     </div>
   </div>
-</div>
+
+  <!-- Card 4 -->
+  <div :if={@can_manage_donations} class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-green-600">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-2.9-.879-4.006 0-.553.44-1.278.659-2.003.659H3v6h1.5c.725 0 1.45-.22 2.003-.659 1.106-.879 2.9-.879 4.006 0L12 18.818l1.491-1.136c1.106-.879 2.9-.879 4.006 0 1.172.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182-.553-.44-1.278-.659-2.003-.659H21V9h-1.5c-.725 0-1.45.22-2.003.659-1.106.879-2.9.879-4.006 0L12 5.182l-1.491 1.136c-1.106.879-2.9.879-4.006 0-.553-.44-1.278-.659-2.003-.659H3v6h1.5c.725 0 1.45-.22 2.003-.659z" />
+          </svg>
+        </span>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-sm font-medium text-gray-500">Total Donations</h3>
+        <p class="mt-1 text-2xl font-bold tracking-tight text-gray-900"><%= @stats.donations_total %></p>
+      </div>
+    </div>
+      <div class="mt-4">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-gray-500">Total Amount:</span>
+          <span class="font-semibold text-green-600">K<%= @stats.donations_amount %></span>
+        </div>
+        <p class="mt-1 text-xs text-gray-400">Excludes failed</p>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="text-gray-500">Pending:</span>
+          <span class="font-medium text-yellow-600"><%= @stats.donations_pending %></span>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="text-gray-500">Completed:</span>
+          <span class="font-medium text-green-600"><%= @stats.donations_completed %></span>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="text-gray-500">Failed:</span>
+          <span class="font-medium text-red-600"><%= @stats.donations_failed %></span>
+        </div>
+      </div>
+      <div class="mt-4">
+        <.link navigate={~p"/admin/donations"} class="text-sm font-semibold text-green-700 hover:text-green-800">
+          View donations →
+        </.link>
+      </div>
+    </div>
+  </div>
 
 <!-- Quick Actions / Shortcuts -->
-<h3 :if={@can_manage_content || @can_manage_messages} class="mt-10 text-base font-semibold text-gray-900">Quick Access</h3>
-<div :if={@can_manage_content || @can_manage_messages} class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+<h3 :if={@can_manage_content || @can_manage_messages || @can_manage_partners || @can_manage_donations} class="mt-10 text-base font-semibold text-gray-900">Quick Access</h3>
+<div :if={@can_manage_content || @can_manage_messages || @can_manage_partners || @can_manage_donations} class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
   <.link
     :if={@can_manage_content}
     navigate={~p"/admin/success-stories"}
@@ -111,6 +152,23 @@
   </.link>
 
   <.link
+    :if={@can_manage_partners}
+    navigate={~p"/admin/partners"}
+    class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 hover:bg-gray-50 transition"
+  >
+    <div class="flex-shrink-0">
+      <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.059 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-3.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
+      </div>
+    </div>
+    <div class="min-w-0 flex-1">
+      <span class="absolute inset-0" aria-hidden="true"></span>
+      <p class="text-sm font-medium text-gray-900">Manage Partners</p>
+      <p class="truncate text-xs text-gray-500">View and manage partner logos</p>
+    </div>
+  </.link>
+
+  <.link
     :if={@can_manage_messages}
     navigate={~p"/admin/messages"}
     class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 hover:bg-gray-50 transition"
@@ -128,8 +186,27 @@
       <p class="truncate text-xs text-gray-500">Read contact form submissions</p>
     </div>
   </.link>
+
+  <.link
+    :if={@can_manage_donations}
+    navigate={~p"/admin/donations"}
+    class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 hover:bg-gray-50 transition"
+  >
+    <div class="flex-shrink-0">
+      <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-2.9-.879-4.006 0-.553.44-1.278.659-2.003.659H3v6h1.5c.725 0 1.45-.22 2.003-.659 1.106-.879 2.9-.879 4.006 0L12 18.818l1.491-1.136c1.106-.879 2.9-.879 4.006 0 1.172.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182-.553-.44-1.278-.659-2.003-.659H21V9h-1.5c-.725 0-1.45.22-2.003.659-1.106.879-2.9.879-4.006 0L12 5.182l-1.491 1.136c-1.106.879-2.9.879-4.006 0-.553-.44-1.278-.659-2.003-.659H3v6h1.5c.725 0 1.45-.22 2.003-.659z" />
+        </svg>
+      </div>
+    </div>
+    <div class="min-w-0 flex-1">
+      <span class="absolute inset-0" aria-hidden="true"></span>
+      <p class="text-sm font-medium text-gray-900">Donation Records</p>
+      <p class="truncate text-xs text-gray-500">View and manage all donations</p>
+    </div>
+  </.link>
 </div>
 
-<div :if={!(@can_manage_content || @can_manage_messages)} class="mt-10 rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-700">
-  You don’t have permission to access any admin modules. Please contact an administrator.
+<div :if={!(@can_manage_content || @can_manage_messages || @can_manage_partners || @can_manage_donations)} class="mt-10 rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-700">
+  You don't have permission to access any admin modules. Please contact an administrator.
 </div>

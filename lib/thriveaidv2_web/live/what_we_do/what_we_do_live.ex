@@ -1,11 +1,15 @@
 defmodule Thriveaidv2Web.WhatWeDo.WhatWeDoLive do
   use Thriveaidv2Web, :live_view
 
+  alias Thriveaidv2.Content
+
   def mount(_params, _session, socket) do
+    partners = Content.list_active_partners()
     socket =
       socket
       |> assign(:active_tab, "education")
       |> assign(:current_page, "what-we-do")
+      |> assign(:partners, partners)
       # Add this line to track which accordion is open
       |> assign(:open_accordion, nil)
 

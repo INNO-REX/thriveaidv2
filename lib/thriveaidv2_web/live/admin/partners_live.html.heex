@@ -1,0 +1,187 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <.header>
+    Partners
+    <:subtitle>Manage the partners shown on the public site.</:subtitle>
+    <:actions>
+      <.link patch={~p"/admin/partners/new"} class="inline-flex items-center gap-x-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-all">
+        <.icon name="hero-plus-mini" class="h-5 w-5" />
+        New Partner
+      </.link>
+    </:actions>
+  </.header>
+
+  <div
+    id="partners"
+    phx-update="stream"
+    class="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8"
+  >
+    <%!-- REMOVED overflow-hidden from class to allow dropdowns to show --%>
+    <div
+      :for={{dom_id, partner} <- @streams.partners}
+      id={dom_id}
+      class="group relative flex flex-col rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300"
+    >
+      <%!-- Image Container: Kept overflow-hidden here to clip the image corners only --%>
+      <div class="relative h-48 w-full overflow-hidden rounded-t-2xl bg-gray-50 flex items-center justify-center p-6">
+        <%= if partner.logo_path do %>
+          <img src={partner.logo_path} alt={partner.name} class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" />
+        <% else %>
+          <div class="flex flex-col items-center gap-2 text-gray-400">
+            <.icon name="hero-photo" class="h-8 w-8" />
+            <span class="text-xs font-medium uppercase tracking-wider">No logo</span>
+          </div>
+        <% end %>
+
+        <div class="absolute top-4 left-4">
+          <span class={[
+            "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+            partner.is_active && "bg-emerald-50 text-emerald-700 ring-emerald-600/20" || "bg-gray-50 text-gray-600 ring-gray-500/10"
+          ]}>
+            <%= if partner.is_active, do: "Active", else: "Inactive" %>
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-1 flex-col p-5">
+        <div class="flex-1">
+          <div class="flex items-start justify-between">
+            <h3 class="text-lg font-bold text-gray-900 line-clamp-1">
+              <%= partner.name %>
+            </h3>
+            <%!-- Moved Actions Dropdown to the top right of the content area for better reach --%>
+            <div class="ml-2 flex-shrink-0">
+               <.actions_dropdown id={"partner-actions-#{partner.id}"}>
+                <:item patch={~p"/admin/partners/#{partner.id}/edit"}>
+                  <.icon name="hero-pencil-square" class="h-4 w-4" />
+                  Edit Partner
+                </:item>
+                <:item phx-click="toggle-active" phx-value-id={partner.id}>
+                  <%= if partner.is_active do %>
+                    <.icon name="hero-eye-slash" class="h-4 w-4" />
+                    Deactivate
+                  <% else %>
+                    <.icon name="hero-eye" class="h-4 w-4 text-emerald-600" />
+                    Activate
+                  <% end %>
+                </:item>
+                <:item phx-click="ask-delete" phx-value-id={partner.id} class="text-rose-600 hover:text-rose-700">
+                  <.icon name="hero-trash" class="h-4 w-4" />
+                  Delete
+                </:item>
+              </.actions_dropdown>
+            </div>
+          </div>
+          
+          <div class="mt-2 flex items-center gap-x-2 text-sm text-gray-500">
+            <span class="font-medium text-gray-700">Order: <%= partner.display_order %></span>
+            <%= if partner.website_url do %>
+              <span class="text-gray-300">|</span>
+              <a href={partner.website_url} target="_blank" class="text-emerald-600 hover:underline flex items-center gap-1">
+                Website <.icon name="hero-arrow-top-right-on-square" class="h-3 w-3" />
+              </a>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%!-- Confirm Delete Modal --%>
+  <.modal
+    :if={@confirm_delete}
+    id="confirm-delete-partner"
+    show
+    on_cancel={JS.push("cancel-delete")}
+  >
+    <div class="text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-100">
+        <.icon name="hero-exclamation-triangle" class="h-6 w-6 text-rose-600" />
+      </div>
+      <h3 class="mt-4 text-lg font-semibold text-gray-900">Delete Partner</h3>
+      <p class="mt-2 text-sm text-gray-500">
+        Are you sure you want to delete <strong><%= @confirm_delete.name %></strong>? This action cannot be undone.
+      </p>
+    </div>
+    <div class="mt-6 flex justify-end gap-3">
+      <.button phx-click="cancel-delete" class="bg-gray-100 !text-gray-700 hover:bg-gray-200 border-none">
+        Cancel
+      </.button>
+      <.button phx-click="confirm-delete" class="bg-rose-600 hover:bg-rose-700">
+        Confirm Delete
+      </.button>
+    </div>
+  </.modal>
+
+  <%!-- Form Modal --%>
+  <.modal
+    :if={@live_action in [:new, :edit]}
+    id="partner-modal"
+    show
+    on_cancel={JS.patch(~p"/admin/partners")}
+  >
+    <.header>
+      <%= @page_title %>
+      <:subtitle>Enter partner details and upload a high-resolution logo.</:subtitle>
+    </.header>
+
+    <.simple_form for={@form} phx-change="validate" phx-submit="save" class="mt-8">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <.input field={@form[:name]} label="Partner Name" placeholder="e.g. Acme Corp" required />
+        </div>
+        
+        <div class="sm:col-span-2">
+          <.label>Logo Upload</.label>
+          <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 bg-gray-50">
+            <div class="text-center">
+              <.icon name="hero-cloud-arrow-up" class="mx-auto h-12 w-12 text-gray-300" />
+              <div class="mt-4 flex text-sm leading-6 text-gray-600">
+                <label class="relative cursor-pointer rounded-md font-semibold text-emerald-600 focus-within:outline-none hover:text-emerald-500">
+                  <span>Upload a file</span>
+                  <.live_file_input upload={@uploads.logo} class="sr-only" />
+                </label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-xs leading-5 text-gray-600">PNG, SVG, or JPG up to 10MB</p>
+            </div>
+          </div>
+
+          <%!-- Current & Pending Logo Previews --%>
+          <div class="mt-4 flex gap-4">
+            <%= if @partner && @partner.logo_path do %>
+              <div>
+                <p class="text-[10px] font-bold uppercase text-gray-400 mb-1">Current</p>
+                <img src={@partner.logo_path} class="h-20 w-20 object-contain rounded border bg-white" />
+              </div>
+            <% end %>
+            
+            <%= for entry <- @uploads.logo.entries do %>
+              <div class="relative">
+                <p class="text-[10px] font-bold uppercase text-emerald-600 mb-1">New Preview</p>
+                <.live_img_preview entry={entry} class="h-20 w-20 object-contain rounded border bg-white" />
+                <button type="button" phx-click="cancel-upload" phx-value-ref={entry.ref} class="absolute -top-1 -right-1 bg-rose-500 text-white rounded-full p-0.5 shadow-sm">
+                  <.icon name="hero-x-mark-mini" class="h-4 w-4" />
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="sm:col-span-2">
+          <.input field={@form[:website_url]} label="Website URL" placeholder="https://..." />
+        </div>
+
+        <div class="sm:col-span-2 flex items-center pb-3">
+          <.input field={@form[:is_active]} type="checkbox" label="Active on public site" />
+        </div>
+      </div>
+
+      <:actions>
+        <div class="flex w-full justify-end gap-3">
+          <.button type="button" phx-click={JS.patch(~p"/admin/partners")} class="bg-white !text-gray-700 border border-gray-300">Cancel</.button>
+          <.button phx-disable-with="Saving...">Save Partner</.button>
+        </div>
+      </:actions>
+    </.simple_form>
+  </.modal>
+</div>

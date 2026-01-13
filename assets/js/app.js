@@ -86,6 +86,21 @@ topbar.config({barColors: {0: "#10B981"}, shadowColor: "rgba(0, 0, 0, .25)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
+// Handle select all permissions event
+window.addEventListener("phx:check-permission-boxes", (e) => {
+  const permissions = e.detail.permissions || []
+  permissions.forEach(permission => {
+    const checkbox = document.getElementById(`permission-${permission}`)
+    if (checkbox && !checkbox.checked) {
+      checkbox.checked = true
+      // Trigger change event to update LiveView
+      checkbox.dispatchEvent(new Event("change", { bubbles: true }))
+      // Also trigger input event for Phoenix LiveView to detect the change
+      checkbox.dispatchEvent(new Event("input", { bubbles: true }))
+    }
+  })
+})
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 

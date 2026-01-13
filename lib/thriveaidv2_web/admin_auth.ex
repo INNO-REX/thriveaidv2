@@ -5,6 +5,7 @@ defmodule Thriveaidv2Web.AdminAuth do
 
   alias Thriveaidv2.Accounts
   alias Thriveaidv2.Inbox
+  alias Thriveaidv2.Content
 
   def on_mount(:mount_current_admin, _params, session, socket) do
     admin_user = get_admin_from_session(session)
@@ -16,7 +17,10 @@ defmodule Thriveaidv2Web.AdminAuth do
       |> Phoenix.Component.assign(:can_manage_admins, can?(admin_user, "manage_admins"))
       |> Phoenix.Component.assign(:can_manage_content, can?(admin_user, "manage_content"))
       |> Phoenix.Component.assign(:can_manage_messages, can?(admin_user, "manage_messages"))
+      |> Phoenix.Component.assign(:can_manage_partners, can?(admin_user, "manage_partners"))
+      |> Phoenix.Component.assign(:can_manage_donations, can?(admin_user, "manage_donations"))
       |> Phoenix.Component.assign(:unread_messages_count, unread_messages_count(admin_user))
+      |> Phoenix.Component.assign(:pending_donations_count, pending_donations_count(admin_user))
 
     {:cont, socket}
   end
@@ -32,7 +36,10 @@ defmodule Thriveaidv2Web.AdminAuth do
         |> Phoenix.Component.assign(:can_manage_admins, can?(admin_user, "manage_admins"))
         |> Phoenix.Component.assign(:can_manage_content, can?(admin_user, "manage_content"))
         |> Phoenix.Component.assign(:can_manage_messages, can?(admin_user, "manage_messages"))
+        |> Phoenix.Component.assign(:can_manage_partners, can?(admin_user, "manage_partners"))
+        |> Phoenix.Component.assign(:can_manage_donations, can?(admin_user, "manage_donations"))
         |> Phoenix.Component.assign(:unread_messages_count, unread_messages_count(admin_user))
+        |> Phoenix.Component.assign(:pending_donations_count, pending_donations_count(admin_user))
 
       {:cont, socket}
     else
@@ -65,7 +72,10 @@ defmodule Thriveaidv2Web.AdminAuth do
         |> Phoenix.Component.assign(:can_manage_admins, can?(admin_user, "manage_admins"))
         |> Phoenix.Component.assign(:can_manage_content, can?(admin_user, "manage_content"))
         |> Phoenix.Component.assign(:can_manage_messages, can?(admin_user, "manage_messages"))
+        |> Phoenix.Component.assign(:can_manage_partners, can?(admin_user, "manage_partners"))
+        |> Phoenix.Component.assign(:can_manage_donations, can?(admin_user, "manage_donations"))
         |> Phoenix.Component.assign(:unread_messages_count, unread_messages_count(admin_user))
+        |> Phoenix.Component.assign(:pending_donations_count, pending_donations_count(admin_user))
 
       {:cont, socket}
     else
@@ -80,6 +90,15 @@ defmodule Thriveaidv2Web.AdminAuth do
 
   defp unread_messages_count(nil), do: 0
   defp unread_messages_count(_admin_user), do: Inbox.unread_count()
+
+  defp pending_donations_count(nil), do: 0
+  defp pending_donations_count(admin_user) do
+    if can?(admin_user, "manage_donations") do
+      Content.count_pending_donations()
+    else
+      0
+    end
+  end
 
   defp permissions_for(nil), do: []
   defp permissions_for(admin_user), do: Map.get(admin_user, :permissions, []) || []
